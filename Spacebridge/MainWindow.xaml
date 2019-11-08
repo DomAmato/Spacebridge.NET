@@ -7,22 +7,25 @@
         mc:Ignorable="d"
         Title="Spacebridge" Height="400" Width="450"
         Closing="Window_Closing">
-    <Grid>
-        <Label Content="API Key:" HorizontalAlignment="Left" Margin="30,7,0,0" VerticalAlignment="Top" RenderTransformOrigin="0.486,0.753"/>
-        <PasswordBox HorizontalAlignment="Left" Margin="96,11,0,0" VerticalAlignment="Top" Width="220"/>
-        <ScrollViewer Margin="0,75,0,65">
+    <Grid Background="#FF4E6CFF">
+        <Label Content="API Key:" HorizontalAlignment="Left" Margin="30,10,0,0" VerticalAlignment="Top" RenderTransformOrigin="0.486,0.753" FontWeight="Bold" FontSize="14" Background="{x:Null}" Foreground="White" Padding="1,1,1,1"/>
+        <PasswordBox x:Name="APIKey" HorizontalAlignment="Left" Margin="100,10,0,0" VerticalAlignment="Top" Width="220" BorderBrush="{x:Null}" Height="21"/>
+        <ScrollViewer Margin="0,75,0,65" Background="#FF063248">
+            <ScrollViewer.Effect>
+                <DropShadowEffect Opacity="0.245"/>
+            </ScrollViewer.Effect>
             <Grid>
-                <ComboBox HorizontalAlignment="Left" Margin="50,20,0,0" VerticalAlignment="Top" Width="120"/>
-                <TextBox HorizontalAlignment="Left" Margin="185,20,0,0" Text="Local" TextWrapping="Wrap" VerticalAlignment="Top" Width="65" Height="22"/>
-                <TextBox HorizontalAlignment="Left" Margin="265,20,0,0" Text="Remote" TextWrapping="Wrap" VerticalAlignment="Top" Width="65" Height="22"/>
-                <Button Content="Connect" HorizontalAlignment="Left" Margin="350,20,0,0" VerticalAlignment="Top"/>
-                <Ellipse HorizontalAlignment="Left" Height="18" Margin="16,22,0,0" Stroke="Black" VerticalAlignment="Top" Width="18"/>
+                <ComboBox x:Name="Dropdown1" HorizontalAlignment="Left" Margin="50,20,0,0" VerticalAlignment="Top" Width="120" BorderBrush="{x:Null}" Background="#FFE37E7E" Foreground="#FF88CFF8"/>
+                <TextBox x:Name="Local1" HorizontalAlignment="Left" Margin="185,20,0,0" Text="Local" TextWrapping="Wrap" VerticalAlignment="Top" Width="65" Height="22"/>
+                <TextBox x:Name="Remote1" HorizontalAlignment="Left" Margin="265,20,0,0" Text="Remote" TextWrapping="Wrap" VerticalAlignment="Top" Width="65" Height="22"/>
+                <Button x:Name="Connect1" Content="Connect" HorizontalAlignment="Left" Margin="344,20,0,0" VerticalAlignment="Top" Background="White" Foreground="#FF063248" FontWeight="Bold" Padding="4,2,4,2" BorderBrush="{x:Null}" Width="81"/>
+                <Ellipse HorizontalAlignment="Left" Height="18" Margin="16,22,0,0" Stroke="Black" VerticalAlignment="Top" Width="18" Fill="#FFDC3F3F"/>
             </Grid>
         </ScrollViewer>
-        <Label Content="Device" HorizontalAlignment="Left" Margin="80,45,0,0" VerticalAlignment="Top"/>
-        <Label Content="Local Port" HorizontalAlignment="Left" Margin="184,45,0,0" VerticalAlignment="Top"/>
-        <Label Content="Remote Port" HorizontalAlignment="Left" Margin="260,45,0,0" VerticalAlignment="Top" Width="76"/>
-        <Button Content="Add Device" HorizontalAlignment="Left" Margin="350,329,0,0" VerticalAlignment="Top"/>
+        <Label Content="Device" HorizontalAlignment="Left" Margin="80,45,0,0" VerticalAlignment="Top" FontWeight="Bold" Background="{x:Null}" Foreground="White"/>
+        <Label Content="Local Port" HorizontalAlignment="Left" Margin="184,45,0,0" VerticalAlignment="Top" FontWeight="Bold" Background="{x:Null}" Foreground="White"/>
+        <Label Content="Remote Port" HorizontalAlignment="Left" Margin="260,45,0,0" VerticalAlignment="Top" Width="92" FontWeight="Bold" Background="{x:Null}" Foreground="White"/>
+        <Button x:Name="AddDevice" Content="Add Device" HorizontalAlignment="Left" Margin="350,340,0,0" VerticalAlignment="Top" Background="White" Foreground="#FF4E6CFF" FontWeight="Bold" BorderBrush="{x:Null}" Padding="4,2,4,2"/>
 
     </Grid>
 </Window>
