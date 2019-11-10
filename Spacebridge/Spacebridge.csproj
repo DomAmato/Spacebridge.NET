@@ -8,6 +8,7 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <PackageReference Include="MahApps.Metro" Version="1.6.5" />
     <PackageReference Include="SSH.NET" Version="2016.1.0" />
   </ItemGroup>
 
