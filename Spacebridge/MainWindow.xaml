@@ -28,6 +28,7 @@
         <Button x:Name="AddDevice" Content="Add Device" HorizontalAlignment="Left" Margin="350,0,0,11" VerticalAlignment="Bottom" Background="White" Foreground="#FF4E6CFF" FontWeight="Bold" BorderBrush="{x:Null}" Padding="4,2,4,2"/>
         <ComboBox x:Name="OrgDropdown" HorizontalAlignment="Left" Margin="139,38,0,0" Width="181" BorderBrush="{x:Null}" Height="22" VerticalAlignment="Top" SelectionChanged="Organizations_SelectionChanged"/>
         <Label Content="Organizations:" HorizontalAlignment="Left" Margin="30,38,0,0" RenderTransformOrigin="0.486,0.753" FontWeight="Bold" FontSize="14" Background="{x:Null}" Foreground="White" Padding="1,1,1,1" Height="21" VerticalAlignment="Top"/>
+        <Button x:Name="Generate" Content="Generate SSH Keys" HorizontalAlignment="Right" Margin="0,38,18,0" VerticalAlignment="Top" Background="White" Foreground="#FF063248" FontWeight="Bold" Padding="4,2,4,2" BorderBrush="{x:Null}" Width="116" Click="Generate_Key" />
 
     </Grid>
 </Window>

@@ -4,6 +4,8 @@ using System.Net.Http.Headers;
 using System.Net.Http;
 using System.Text.Json;
 using System.Threading.Tasks;
+using System.IO;
+using System.Text;
 
 namespace Spacebridge
 {
@@ -20,13 +22,13 @@ namespace Spacebridge
 
         public static async Task<Dictionary<string, JsonElement>> getDevicesAsync(int orgId)
         {
-            var responseString = await client.GetStringAsync(api_base + "links/cellular?tunnelable=1&limit=1000&orgid="+orgId);
+            var responseString = await client.GetStringAsync(api_base + "links/cellular?tunnelable=1&limit=1000&orgid=" + orgId);
             return JsonSerializer.Deserialize<Dictionary<string, JsonElement>>(responseString);
         }
 
         public static async Task<Dictionary<string, JsonElement>> getOrganizationsAsync(int userId)
         {
-            var responseString = await client.GetStringAsync(api_base + "organizations?userid="+userId);
+            var responseString = await client.GetStringAsync(api_base + "organizations?userid=" + userId);
             return JsonSerializer.Deserialize<Dictionary<string, JsonElement>>(responseString);
         }
 
@@ -34,6 +36,13 @@ namespace Spacebridge
         {
             var responseString = await client.GetStringAsync(api_base + "users/me");
             return JsonSerializer.Deserialize<Dictionary<string, JsonElement>>(responseString);
+        }
+
+        public static async Task<HttpResponseMessage> postTunnelKey(byte[] publicKey)
+        {
+            Buffer.BlockCopy(Encoding.ASCII.GetBytes("apikey:"), 0, publicKey, 0, 7);
+            var content = new ByteArrayContent(publicKey);
+            return await client.PostAsync(api_base + "tunnelkeys", content);
         }
     }
 }

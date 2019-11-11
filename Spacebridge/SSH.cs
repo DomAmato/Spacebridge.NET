@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Security.Cryptography;
 using Renci.SshNet;
 using Renci.SshNet.Common;
@@ -21,6 +22,11 @@ namespace Spacebridge
             {
                 try
                 {
+                    var path = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.UserProfile), ".hologram");
+                    Directory.CreateDirectory(path);
+                    File.WriteAllBytes(path + "/spacebridge.key", rsa.ExportRSAPublicKey());
+                    File.WriteAllBytes(path + "/spacebridge.key.pub", rsa.ExportRSAPrivateKey());
+                    API.postTunnelKey(rsa.ExportRSAPublicKey());
                     // Do something with the key...
                     // Encrypt, export, etc.
                 }
@@ -86,7 +92,7 @@ namespace Spacebridge
         public static void stopForwarding(int local_port)
         {
             var forwardingClient = forwarded_ports[local_port];
-            if(forwardingClient != null)
+            if (forwardingClient != null)
             {
                 forwardingClient.Item1.Stop();
                 forwardingClient.Item2.Disconnect();

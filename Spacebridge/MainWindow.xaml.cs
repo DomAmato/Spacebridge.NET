@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text.Json;
@@ -73,6 +73,11 @@ namespace Spacebridge
             apiKey = ((PasswordBox)e.Source).Password;
             API.setApiKey(apiKey);
             _ = loadOrgs();
+        }
+
+        private void Generate_Key(object sender, RoutedEventArgs e)
+        {
+            SSH.createRSAKey();
         }
     }
 }
