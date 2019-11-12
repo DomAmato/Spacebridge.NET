@@ -8,27 +8,30 @@
         Title="Spacebridge" Height="400" Width="470"
         Closing="Window_Closing">
     <Grid Background="#FF4E6CFF">
-        <Label Content="API Key:" HorizontalAlignment="Left" Margin="30,10,0,0" VerticalAlignment="Top" RenderTransformOrigin="0.486,0.753" FontWeight="Bold" FontSize="14" Background="{x:Null}" Foreground="White" Padding="1,1,1,1"/>
-        <PasswordBox x:Name="APIKey" HorizontalAlignment="Left" Margin="100,10,0,0" VerticalAlignment="Top" Width="324" BorderBrush="{x:Null}" Height="21" PasswordChanged="APIKey_PasswordChanged"/>
-        <ScrollViewer Margin="0,95,0,45" Background="#FF063248">
+        <Label x:Name="APIKeyLabel" Content="API Key:" HorizontalAlignment="Left" Margin="30,158,0,0" VerticalAlignment="Top" RenderTransformOrigin="0.486,0.753" FontWeight="Bold" FontSize="14" Background="{x:Null}" Foreground="White" Padding="1,1,1,1"/>
+        <PasswordBox x:Name="APIKey" Margin="100,158,46,0" VerticalAlignment="Top" BorderBrush="{x:Null}" Height="21" PasswordChanged="APIKey_PasswordChanged"/>
+        <ScrollViewer x:Name="ScrollArea" Visibility="Hidden" Margin="0,95,0,45" Background="#FF063248">
             <ScrollViewer.Effect>
                 <DropShadowEffect Opacity="0.245"/>
             </ScrollViewer.Effect>
             <Grid>
-                <ComboBox x:Name="Dropdown1" HorizontalAlignment="Left" Margin="50,20,0,0" VerticalAlignment="Top" Width="120" BorderBrush="{x:Null}"/>
-                <TextBox x:Name="Local1" HorizontalAlignment="Left" Margin="185,20,0,0" Text="Local" TextWrapping="Wrap" VerticalAlignment="Top" Width="65" Height="22"/>
-                <TextBox x:Name="Remote1" HorizontalAlignment="Left" Margin="265,20,0,0" Text="Remote" TextWrapping="Wrap" VerticalAlignment="Top" Width="65" Height="22"/>
-                <Button x:Name="Connect1" Content="Connect" HorizontalAlignment="Left" Margin="344,20,0,0" VerticalAlignment="Top" Background="White" Foreground="#FF063248" FontWeight="Bold" Padding="4,2,4,2" BorderBrush="{x:Null}" Width="81"/>
-                <Ellipse HorizontalAlignment="Left" Height="18" Margin="16,22,0,0" Stroke="Black" VerticalAlignment="Top" Width="18" Fill="#FFDC3F3F"/>
+                <ComboBox Visibility="Hidden" x:Name="DeviceDropdown1" HorizontalAlignment="Left" Margin="50,20,0,0" VerticalAlignment="Top" Width="120" BorderBrush="{x:Null}"/>
+                <TextBox Visibility="Hidden" x:Name="Local1" HorizontalAlignment="Left" Margin="185,20,0,0" Text="Local" TextWrapping="Wrap" VerticalAlignment="Top" Width="65" Height="22"/>
+                <TextBox Visibility="Hidden" x:Name="Remote1" HorizontalAlignment="Left" Margin="265,20,0,0" Text="Remote" TextWrapping="Wrap" VerticalAlignment="Top" Width="65" Height="22"/>
+                <Button Visibility="Hidden" x:Name="Connect1" Content="Connect" HorizontalAlignment="Left" Margin="344,20,0,0" VerticalAlignment="Top" Background="White" Foreground="#FF063248" FontWeight="Bold" Padding="4,2,4,2" BorderBrush="{x:Null}" Width="81" Click="Connect_Click"/>
+                <Ellipse Visibility="Hidden" x:Name="Status1" HorizontalAlignment="Left" Height="18" Margin="16,22,0,0" Stroke="Black" VerticalAlignment="Top" Width="18" Fill="#FFDC3F3F"/>
             </Grid>
         </ScrollViewer>
-        <Label Content="Device" HorizontalAlignment="Left" Margin="80,65,0,0" VerticalAlignment="Top" FontWeight="Bold" Background="{x:Null}" Foreground="White"/>
-        <Label Content="Local Port" HorizontalAlignment="Left" Margin="184,65,0,0" VerticalAlignment="Top" FontWeight="Bold" Background="{x:Null}" Foreground="White"/>
-        <Label Content="Remote Port" HorizontalAlignment="Left" Margin="260,65,0,0" VerticalAlignment="Top" Width="92" FontWeight="Bold" Background="{x:Null}" Foreground="White"/>
-        <Button x:Name="AddDevice" Content="Add Device" HorizontalAlignment="Left" Margin="350,0,0,11" VerticalAlignment="Bottom" Background="White" Foreground="#FF4E6CFF" FontWeight="Bold" BorderBrush="{x:Null}" Padding="4,2,4,2"/>
-        <ComboBox x:Name="OrgDropdown" HorizontalAlignment="Left" Margin="139,38,0,0" Width="181" BorderBrush="{x:Null}" Height="22" VerticalAlignment="Top" SelectionChanged="Organizations_SelectionChanged"/>
-        <Label Content="Organizations:" HorizontalAlignment="Left" Margin="30,38,0,0" RenderTransformOrigin="0.486,0.753" FontWeight="Bold" FontSize="14" Background="{x:Null}" Foreground="White" Padding="1,1,1,1" Height="21" VerticalAlignment="Top"/>
-        <Button x:Name="Generate" Content="Generate SSH Keys" HorizontalAlignment="Right" Margin="0,38,18,0" VerticalAlignment="Top" Background="White" Foreground="#FF063248" FontWeight="Bold" Padding="4,2,4,2" BorderBrush="{x:Null}" Width="116" Click="Generate_Key" />
-
+        <Label Visibility="Hidden" x:Name="DeviceLabel" Content="Device" HorizontalAlignment="Left" Margin="80,65,0,0" VerticalAlignment="Top" FontWeight="Bold" Background="{x:Null}" Foreground="White"/>
+        <Label Visibility="Hidden" x:Name="LPortLabel" Content="Local Port" HorizontalAlignment="Left" Margin="184,65,0,0" VerticalAlignment="Top" FontWeight="Bold" Background="{x:Null}" Foreground="White"/>
+        <Label Visibility="Hidden" x:Name="RPortLabel" Content="Remote Port" HorizontalAlignment="Left" Margin="260,65,0,0" VerticalAlignment="Top" Width="92" FontWeight="Bold" Background="{x:Null}" Foreground="White"/>
+        <Button Visibility="Hidden" x:Name="AddDevice" Content="Add Device" HorizontalAlignment="Left" Margin="350,0,0,11" VerticalAlignment="Bottom" Background="White" Foreground="#FF4E6CFF" FontWeight="Bold" BorderBrush="{x:Null}" Padding="4,2,4,2"/>
+        <ComboBox Visibility="Hidden" x:Name="OrgDropdown" HorizontalAlignment="Left" Margin="139,38,0,0" Width="181" BorderBrush="{x:Null}" Height="22" VerticalAlignment="Top" SelectionChanged="Organizations_SelectionChanged"/>
+        <Label Visibility="Hidden" x:Name="OrgLabel" Content="Organizations:" HorizontalAlignment="Left" Margin="30,38,0,0" RenderTransformOrigin="0.486,0.753" FontWeight="Bold" FontSize="14" Background="{x:Null}" Foreground="White" Padding="1,1,1,1" Height="21" VerticalAlignment="Top"/>
+        <Button Visibility="Hidden" x:Name="Generate" Content="Generate SSH Keys" HorizontalAlignment="Right" Margin="0,0,195,11" Background="White" Foreground="#FF063248" FontWeight="Bold" Padding="4,2,4,2" BorderBrush="{x:Null}" Width="116" Click="Generate_Key" Height="22" VerticalAlignment="Bottom" />
+        <TextBlock Visibility="Hidden" x:Name="GenerateText" Text="No Spacebridge Keys Found or stored" TextWrapping="Wrap" HorizontalAlignment="Left" Margin="10,0,0,0" FontWeight="Bold" Background="{x:Null}" Foreground="White" Width="144" Height="40" VerticalAlignment="Bottom"/>
+        <Label Content="Hologram Spacebridge" x:Name="Title" HorizontalAlignment="Left" Margin="59,49,0,0" VerticalAlignment="Top" FontWeight="Bold" FontSize="30" Background="{x:Null}" Foreground="White"/>
+        <Button IsEnabled="False" Content="Continue" x:Name="Continue" Margin="0,235,46,0" VerticalAlignment="Top" RenderTransformOrigin="1.267,2.087" Background="{x:Null}" Foreground="White" BorderThickness="2" BorderBrush="White" FontWeight="Bold" Padding="4,2,4,2" HorizontalAlignment="Right" Width="63" Click="Do_Continue"/>
+        <TextBlock Visibility="Hidden" x:Name="UserInfo" HorizontalAlignment="Left" Margin="57,231,0,0" Text="User Info:" TextWrapping="Wrap" VerticalAlignment="Top" Height="113" Width="283" Foreground="White" FontWeight="Bold"/>
     </Grid>
 </Window>

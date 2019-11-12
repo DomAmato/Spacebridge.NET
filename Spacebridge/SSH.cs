@@ -16,25 +16,26 @@ namespace Spacebridge
         public static PrivateKeyFile[] spacebridge_key { get; }
         private static Dictionary<int, Tuple<ForwardedPortLocal, SshClient>> forwarded_ports;
 
-        public static void createRSAKey()
+        public static void createRSAKey(byte[] publicKey, byte[] privateKey)
         {
-            using (var rsa = new RSACryptoServiceProvider(2048))
-            {
-                try
-                {
-                    var path = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.UserProfile), ".hologram");
-                    Directory.CreateDirectory(path);
-                    File.WriteAllBytes(path + "/spacebridge.key", rsa.ExportRSAPublicKey());
-                    File.WriteAllBytes(path + "/spacebridge.key.pub", rsa.ExportRSAPrivateKey());
-                    API.postTunnelKey(rsa.ExportRSAPublicKey());
-                    // Do something with the key...
-                    // Encrypt, export, etc.
-                }
-                finally
-                {
-                    rsa.PersistKeyInCsp = false;
-                }
-            }
+            var path = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.UserProfile), ".hologram");
+            Directory.CreateDirectory(path);
+            File.WriteAllBytes(path + "/spacebridge.key", privateKey);
+            File.WriteAllBytes(path + "/spacebridge.key.pub", publicKey);
+            
+            //using (var rsa = new RSACryptoServiceProvider(2048))
+            //{
+            //    try
+            //    {
+                    
+            //        // Do something with the key...
+            //        // Encrypt, export, etc.
+            //    }
+            //    finally
+            //    {
+            //        rsa.PersistKeyInCsp = false;
+            //    }
+            //}
         }
 
         public static void createDSSKey()

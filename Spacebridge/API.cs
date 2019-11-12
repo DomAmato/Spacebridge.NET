@@ -17,7 +17,7 @@ namespace Spacebridge
         public static void setApiKey(String apiKey)
         {
             client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Basic",
-                Convert.ToBase64String(System.Text.Encoding.UTF8.GetBytes("apikey:" + apiKey)));
+                Convert.ToBase64String(Encoding.UTF8.GetBytes("apikey:" + apiKey)));
         }
 
         public static async Task<Dictionary<string, JsonElement>> getDevicesAsync(int orgId)
@@ -38,11 +38,35 @@ namespace Spacebridge
             return JsonSerializer.Deserialize<Dictionary<string, JsonElement>>(responseString);
         }
 
-        public static async Task<HttpResponseMessage> postTunnelKey(byte[] publicKey)
+        public static async Task<Dictionary<string, JsonElement>> hasTunnelKey(int userId)
         {
-            Buffer.BlockCopy(Encoding.ASCII.GetBytes("apikey:"), 0, publicKey, 0, 7);
-            var content = new ByteArrayContent(publicKey);
-            return await client.PostAsync(api_base + "tunnelkeys", content);
+            var responseString = await client.GetStringAsync(api_base + "tunnelkeys?userid=" + userId);
+            return JsonSerializer.Deserialize<Dictionary<string, JsonElement>>(responseString);
+        }
+
+        public static async void createTunnelKey()
+        {
+            var response = await client.PostAsync(api_base + "tunnelkeys", null);
+            if (response.IsSuccessStatusCode) {
+                var jsonresponse = JsonSerializer.Deserialize<Dictionary<string, JsonElement>>(await response.Content.ReadAsStringAsync());
+                SSH.createRSAKey(
+                    Encoding.ASCII.GetBytes(jsonresponse["data"].GetProperty("public_key").GetString()),
+                    Encoding.ASCII.GetBytes(jsonresponse["data"].GetProperty("private_key").GetString()));
+            }
+        }
+
+        public static async Task<bool> uploadTunnelKey()
+        {
+            var path = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.UserProfile), ".hologram/spacebridge.key.pub");
+            var content = new FormUrlEncodedContent(new Dictionary<string, string>
+            {
+                {
+                    "public_key", File.ReadAllText(path)
+                }
+                
+            });
+            var response = await client.PostAsync(api_base + "tunnelkeys", content);
+            return response.IsSuccessStatusCode;
         }
     }
 }
