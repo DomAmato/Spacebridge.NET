@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Security.Cryptography;
@@ -10,11 +10,12 @@ namespace Spacebridge
     class SSH
     {
         private static byte[] hologram_fingerprint = new byte[] {
-        0xa3, 0x37, 0x33, 0x65, 0x0e, 0x2f, 0x14, 0x51,
-        0xa9, 0xf2, 0x73, 0xe0, 0x13, 0x06, 0x3c, 0xe4 };
+        0xc7, 0xd2, 0x6c, 0xe2, 0x57, 0x50, 0x49, 0xbf,
+        0x3c, 0x23, 0x73, 0xc5, 0xcc, 0x39, 0x48, 0xa3 };
         private static string tunnel_server = "tunnel.hologram.io";
-        public static PrivateKeyFile[] spacebridge_key { get; }
-        private static Dictionary<int, Tuple<ForwardedPortLocal, SshClient>> forwarded_ports;
+        private static int tunnel_port = 999;
+        private static List<PrivateKeyFile> spacebridge_key = new List<PrivateKeyFile>();
+        private static Dictionary<int, Tuple<ForwardedPortLocal, SshClient>> forwarded_ports = new Dictionary<int, Tuple<ForwardedPortLocal, SshClient>>();
 
         public static void createRSAKey(byte[] publicKey, byte[] privateKey)
         {
@@ -22,12 +23,13 @@ namespace Spacebridge
             Directory.CreateDirectory(path);
             File.WriteAllBytes(path + "/spacebridge.key", privateKey);
             File.WriteAllBytes(path + "/spacebridge.key.pub", publicKey);
-            
+
+            spacebridge_key.Add(new PrivateKeyFile(path + "/spacebridge.key"));
             //using (var rsa = new RSACryptoServiceProvider(2048))
             //{
             //    try
             //    {
-                    
+
             //        // Do something with the key...
             //        // Encrypt, export, etc.
             //    }
@@ -54,9 +56,19 @@ namespace Spacebridge
             }
         }
 
-        public static void beginForwarding(int local_port, int remote_port)
+        public static bool beginForwarding(int linkId, int local_port, int remote_port)
         {
-            using (var client = new SshClient(tunnel_server, remote_port, "htunnel", spacebridge_key))
+            if(forwarded_ports.ContainsKey(local_port))
+            {
+                System.Diagnostics.Debug.WriteLine("Local port is already forwarding, use a different port");
+                return false;
+            }
+            if (spacebridge_key.Count == 0)
+            {
+                var path = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.UserProfile), ".hologram");
+                spacebridge_key.Add(new PrivateKeyFile(path + "/spacebridge.key"));
+            }
+            using (var client = new SshClient(tunnel_server, tunnel_port, "htunnel", spacebridge_key.ToArray()))
             {
                 client.HostKeyReceived += (sender, e) =>
                 {
@@ -76,17 +88,26 @@ namespace Spacebridge
                         e.CanTrust = false;
                     }
                 };
-                client.Connect();
+                try
+                {
+                    client.Connect();
+                }
+                catch (Exception e)
+                {
+                    System.Diagnostics.Debug.WriteLine(e.Message);
+                    return false;
+                }
 
-                var port = new ForwardedPortLocal("localhost", (uint)local_port, tunnel_server, (uint)remote_port);
+                var port = new ForwardedPortLocal("localhost", (uint)local_port, "link"+linkId, (uint)remote_port);
                 client.AddForwardedPort(port);
 
                 port.Exception += delegate (object sender, ExceptionEventArgs e)
                 {
-                    Console.WriteLine(e.Exception.ToString());
+                    System.Diagnostics.Debug.WriteLine(e.Exception.ToString());
                 };
                 port.Start();
                 forwarded_ports.Add(local_port, new Tuple<ForwardedPortLocal, SshClient>(port, client));
+                return true;
             }
         }
 

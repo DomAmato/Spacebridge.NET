@@ -6,6 +6,8 @@ using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Controls;
 using System.IO;
+using System.Windows.Shapes;
+using System.Windows.Media;
 
 namespace Spacebridge
 {
@@ -16,9 +18,11 @@ namespace Spacebridge
     {
 
         Dictionary<string, JsonElement> orgDict;
+        Dictionary<string, JsonElement> deviceDict;
         int selectedOrg = 0;
         int userId = 0;
         string apiKey;
+        List<Tuple<Ellipse, ComboBox, TextBox, TextBox, Button>> devices = new List<Tuple<Ellipse, ComboBox, TextBox, TextBox, Button>>();
 
         public MainWindow()
         {
@@ -39,8 +43,8 @@ namespace Spacebridge
             Task<Dictionary<string, JsonElement>> response = API.getDevicesAsync(orgId);
             Dictionary<string, JsonElement> jsonResponse = await response;
 
-            var deviceList = jsonResponse["data"];
-            DeviceDropdown1.ItemsSource = deviceList.EnumerateArray()
+            deviceDict = jsonResponse["data"].EnumerateArray().ToDictionary(org => org.GetProperty("devicename").GetString());
+            DeviceDropdown1.ItemsSource = jsonResponse["data"].EnumerateArray()
                 .Select(device => device.GetProperty("devicename")).ToArray();
         }
 
@@ -72,7 +76,7 @@ namespace Spacebridge
         {
             Task<Dictionary<string, JsonElement>> response = API.hasTunnelKey(userId);
             Dictionary<string, JsonElement> jsonResponse = await response;
-            var path = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.UserProfile), ".hologram/spacebridge.key.pub");
+            var path = System.IO.Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.UserProfile), ".hologram/spacebridge.key.pub");
             if (jsonResponse["data"].GetArrayLength() == 0)
             {
                 // No Keys have been uploaded
@@ -154,7 +158,7 @@ namespace Spacebridge
 
         private void Generate_Key(object sender, RoutedEventArgs e)
         {
-            var path = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.UserProfile), ".hologram/spacebridge.key.pub");
+            var path = System.IO.Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.UserProfile), ".hologram/spacebridge.key.pub");
             if (File.Exists(path))
             {
                 API.uploadTunnelKey();
@@ -171,12 +175,30 @@ namespace Spacebridge
             {
                 var local = Convert.ToInt32(Local1.Text);
                 var remote = Convert.ToInt32(Remote1.Text);
-                SSH.beginForwarding(local, remote);
+                var success = SSH.beginForwarding(deviceDict[DeviceDropdown1.Text].GetProperty("id").GetInt32(), local, remote);
+                if (success)
+                {
+                    Status1.Fill = Brushes.Green;
+                }
             }
             catch (FormatException ex)
             {
                 System.Diagnostics.Debug.WriteLine(ex.Message);
             }
+        }
+
+        private void AddDevice_Click(object sender, RoutedEventArgs e)
+        {
+            var status = new Ellipse { HorizontalAlignment = HorizontalAlignment.Left, Height = 18, Margin = new Thickness(16,42,0,0), Stroke = Brushes.Black, VerticalAlignment = VerticalAlignment.Top, Width = 18, Fill = new SolidColorBrush((Color)ColorConverter.ConvertFromString("#FFDC3F3F")) };
+            var deviceMenu = new ComboBox { HorizontalAlignment = HorizontalAlignment.Left, Margin = new Thickness(50, 40, 0, 0), VerticalAlignment = VerticalAlignment.Top, Width = 120 };
+            var local = new TextBox();
+            var remote = new TextBox();
+            var connect = new Button();
+            ScrollGrid.Children.Add(status);
+            ScrollGrid.Children.Add(deviceMenu);
+            ScrollGrid.Children.Add(local);
+            ScrollGrid.Children.Add(remote);
+            ScrollGrid.Children.Add(connect);
         }
     }
 }
