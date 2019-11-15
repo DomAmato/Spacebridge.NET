@@ -22,30 +22,32 @@ namespace Spacebridge
         int selectedOrg = 0;
         int userId = 0;
         string apiKey;
-        List<Tuple<Ellipse, ComboBox, TextBox, TextBox, Button>> devices = new List<Tuple<Ellipse, ComboBox, TextBox, TextBox, Button>>();
+        private readonly List<Tuple<Ellipse, ComboBox, TextBox, TextBox, Button>> devices_list = new List<Tuple<Ellipse, ComboBox, TextBox, TextBox, Button>>();
 
         public MainWindow()
         {
             InitializeComponent();
         }
 
-        private async void loadOrgs()
+        private async void LoadOrgs()
         {
-            Task<Dictionary<string, JsonElement>> response = API.getOrganizationsAsync(userId);
+            Task<Dictionary<string, JsonElement>> response = API.GetOrganizationsAsync(userId);
             Dictionary<string, JsonElement> jsonResponse = await response;
             orgDict = jsonResponse["data"].EnumerateArray().ToDictionary(org => org.GetProperty("name").GetString());
             OrgDropdown.ItemsSource = jsonResponse["data"].EnumerateArray()
                 .Select(org => org.GetProperty("name")).ToArray();
         }
 
-        private async void loadDevices(int orgId)
+        private async void LoadDevices(int orgId)
         {
-            Task<Dictionary<string, JsonElement>> response = API.getDevicesAsync(orgId);
+            Task<Dictionary<string, JsonElement>> response = API.GetDevicesAsync(orgId);
             Dictionary<string, JsonElement> jsonResponse = await response;
 
             deviceDict = jsonResponse["data"].EnumerateArray().ToDictionary(org => org.GetProperty("devicename").GetString());
-            DeviceDropdown1.ItemsSource = jsonResponse["data"].EnumerateArray()
+            foreach (var device in devices_list) {
+                device.Item2.ItemsSource = jsonResponse["data"].EnumerateArray()
                 .Select(device => device.GetProperty("devicename")).ToArray();
+            }
         }
 
         private void Window_Closing(object sender, System.ComponentModel.CancelEventArgs e)
@@ -58,23 +60,34 @@ namespace Spacebridge
         {
             // Selected SSID
             selectedOrg = orgDict[((JsonElement)e.AddedItems[0]).GetString()].GetProperty("id").GetInt32();
-            loadDevices(selectedOrg);
-            ScrollArea.Visibility = Visibility.Visible;
-            DeviceLabel.Visibility = Visibility.Visible;
-            RPortLabel.Visibility = Visibility.Visible;
-            LPortLabel.Visibility = Visibility.Visible;
-            DeviceDropdown1.Visibility = Visibility.Visible;
-            Connect1.Visibility = Visibility.Visible;
-            Local1.Visibility = Visibility.Visible;
-            Remote1.Visibility = Visibility.Visible;
-            Status1.Visibility = Visibility.Visible;
-            AddDevice.Visibility = Visibility.Visible;
-            CheckKeysExist();
+            if (ScrollArea.Visibility == Visibility.Hidden)
+            {
+                ScrollArea.Visibility = Visibility.Visible;
+                DeviceLabel.Visibility = Visibility.Visible;
+                RPortLabel.Visibility = Visibility.Visible;
+                LPortLabel.Visibility = Visibility.Visible;
+                AddDevice.Visibility = Visibility.Visible;
+                var status = new Ellipse { HorizontalAlignment = HorizontalAlignment.Left, Height = 18, Margin = new Thickness(16, 22, 0, 0), Stroke = Brushes.Black, VerticalAlignment = VerticalAlignment.Top, Width = 18, Fill = new SolidColorBrush((Color)ColorConverter.ConvertFromString("#FFDC3F3F")) };
+                var deviceMenu = new ComboBox { HorizontalAlignment = HorizontalAlignment.Left, Margin = new Thickness(50, 20, 0, 0), VerticalAlignment = VerticalAlignment.Top, Width = 120 };
+                var local = new TextBox { HorizontalAlignment = HorizontalAlignment.Left, Margin = new Thickness(185, 20, 0, 0), Text = "Local", TextWrapping = TextWrapping.Wrap, VerticalAlignment = VerticalAlignment.Top, Width = 65, Height = 22 };
+                var remote = new TextBox { HorizontalAlignment = HorizontalAlignment.Left, Margin = new Thickness(265, 20, 0, 0), Text = "Remote", TextWrapping = TextWrapping.Wrap, VerticalAlignment = VerticalAlignment.Top, Width = 65, Height = 22 };
+                var connect = new Button { Content = "Connect", HorizontalAlignment = HorizontalAlignment.Left, Margin = new Thickness(344, 20, 0, 0), VerticalAlignment = VerticalAlignment.Top, Background = Brushes.White, Foreground = new SolidColorBrush((Color)ColorConverter.ConvertFromString("#FF063248")), FontWeight = FontWeights.Bold, Padding = new Thickness(4, 2, 4, 2), BorderBrush = null, Width = 81 };
+                connect.Tag = 0;
+                connect.Click += Connect_Click;
+                ScrollGrid.Children.Add(status);
+                ScrollGrid.Children.Add(deviceMenu);
+                ScrollGrid.Children.Add(local);
+                ScrollGrid.Children.Add(remote);
+                ScrollGrid.Children.Add(connect);
+                devices_list.Add(new Tuple<Ellipse, ComboBox, TextBox, TextBox, Button>(status, deviceMenu, local, remote, connect));
+                CheckKeysExist();
+            }
+            LoadDevices(selectedOrg);
         }
 
         private async void CheckKeysExist()
         {
-            Task<Dictionary<string, JsonElement>> response = API.hasTunnelKey(userId);
+            Task<Dictionary<string, JsonElement>> response = API.HasTunnelKey(userId);
             Dictionary<string, JsonElement> jsonResponse = await response;
             var path = System.IO.Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.UserProfile), ".hologram/spacebridge.key.pub");
             if (jsonResponse["data"].GetArrayLength() == 0)
@@ -122,13 +135,13 @@ namespace Spacebridge
         private void APIKey_PasswordChanged(object sender, RoutedEventArgs e)
         {
             apiKey = ((PasswordBox)e.Source).Password;
-            API.setApiKey(apiKey);
-            loadUserInfo();
+            API.SetApiKey(apiKey);
+            LoadUserInfo();
         }
 
-        private async void loadUserInfo()
+        private async void LoadUserInfo()
         {
-            Task<Dictionary<string, JsonElement>> response = API.getUserInfoAsync();
+            Task<Dictionary<string, JsonElement>> response = API.GetUserInfoAsync();
             Dictionary<string, JsonElement> jsonResponse = await response;
             if (jsonResponse["success"].GetBoolean())
             {
@@ -146,7 +159,7 @@ namespace Spacebridge
 
         private void Do_Continue(object sender, RoutedEventArgs e)
         {
-            loadOrgs();
+            LoadOrgs();
             Title.Visibility = Visibility.Hidden;
             Continue.Visibility = Visibility.Hidden;
             UserInfo.Visibility = Visibility.Hidden;
@@ -161,24 +174,30 @@ namespace Spacebridge
             var path = System.IO.Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.UserProfile), ".hologram/spacebridge.key.pub");
             if (File.Exists(path))
             {
-                API.uploadTunnelKey();
+                _ = API.UploadTunnelKey();
             }
             else
             {
-                API.createTunnelKey();
+                API.CreateTunnelKey();
             }
         }
 
         private void Connect_Click(object sender, RoutedEventArgs e)
         {
+            int index = (int)((Button)sender).Tag;
             try
             {
-                var local = Convert.ToInt32(Local1.Text);
-                var remote = Convert.ToInt32(Remote1.Text);
-                var success = SSH.beginForwarding(deviceDict[DeviceDropdown1.Text].GetProperty("id").GetInt32(), local, remote);
+                var local = Convert.ToInt32(devices_list[index].Item3.Text);
+                var remote = Convert.ToInt32(devices_list[index].Item4.Text);
+                var success = SSH.BeginForwarding(deviceDict[devices_list[index].Item2.Text].GetProperty("id").GetInt32(), local, remote);
                 if (success)
                 {
-                    Status1.Fill = Brushes.Green;
+                    devices_list[index].Item1.Fill = Brushes.Green;
+                    var tooltip = new ToolTip
+                    {
+                        Content = "Connected to " + devices_list[index].Item2.Text + " - Forwarding local port: " + local
+                    };
+                    devices_list[index].Item1.ToolTip = tooltip;
                 }
             }
             catch (FormatException ex)
@@ -189,16 +208,21 @@ namespace Spacebridge
 
         private void AddDevice_Click(object sender, RoutedEventArgs e)
         {
-            var status = new Ellipse { HorizontalAlignment = HorizontalAlignment.Left, Height = 18, Margin = new Thickness(16,42,0,0), Stroke = Brushes.Black, VerticalAlignment = VerticalAlignment.Top, Width = 18, Fill = new SolidColorBrush((Color)ColorConverter.ConvertFromString("#FFDC3F3F")) };
-            var deviceMenu = new ComboBox { HorizontalAlignment = HorizontalAlignment.Left, Margin = new Thickness(50, 40, 0, 0), VerticalAlignment = VerticalAlignment.Top, Width = 120 };
-            var local = new TextBox();
-            var remote = new TextBox();
-            var connect = new Button();
+            var index = devices_list.Count();
+            var status = new Ellipse { HorizontalAlignment = HorizontalAlignment.Left, Height = 18, Margin = new Thickness(16,22 + (25 * index),0,0), Stroke = Brushes.Black, VerticalAlignment = VerticalAlignment.Top, Width = 18, Fill = new SolidColorBrush((Color)ColorConverter.ConvertFromString("#FFDC3F3F")) };
+            var deviceMenu = new ComboBox { HorizontalAlignment = HorizontalAlignment.Left, Margin = new Thickness(50, 20 + (25 * index), 0, 0), VerticalAlignment = VerticalAlignment.Top, Width = 120 };
+            deviceMenu.ItemsSource = deviceDict.Keys;
+            var local = new TextBox { HorizontalAlignment = HorizontalAlignment.Left, Margin = new Thickness(185, 20 + (25 * index), 0,0), Text = "Local", TextWrapping = TextWrapping.Wrap, VerticalAlignment = VerticalAlignment.Top, Width = 65, Height = 22 };
+            var remote = new TextBox { HorizontalAlignment = HorizontalAlignment.Left, Margin = new Thickness(265, 20 + (25 * index), 0, 0), Text = "Remote", TextWrapping = TextWrapping.Wrap, VerticalAlignment = VerticalAlignment.Top, Width = 65, Height = 22 };
+            var connect = new Button { Content = "Connect", HorizontalAlignment = HorizontalAlignment.Left, Margin = new Thickness(344, 20 + (25 * index), 0,0), VerticalAlignment = VerticalAlignment.Top, Background = Brushes.White, Foreground = new SolidColorBrush((Color)ColorConverter.ConvertFromString("#FF063248")), FontWeight = FontWeights.Bold, Padding = new Thickness(4,2,4,2), BorderBrush = null, Width = 81 };
+            connect.Tag = index;
+            connect.Click += Connect_Click;
             ScrollGrid.Children.Add(status);
             ScrollGrid.Children.Add(deviceMenu);
             ScrollGrid.Children.Add(local);
             ScrollGrid.Children.Add(remote);
             ScrollGrid.Children.Add(connect);
+            devices_list.Add(new Tuple<Ellipse, ComboBox, TextBox, TextBox, Button>(status, deviceMenu, local, remote, connect));
         }
     }
 }

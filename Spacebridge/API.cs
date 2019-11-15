@@ -14,48 +14,48 @@ namespace Spacebridge
         private static readonly HttpClient client = new HttpClient();
         private static readonly String api_base = "https://dashboard.hologram.io/api/1/";
 
-        public static void setApiKey(String apiKey)
+        public static void SetApiKey(String apiKey)
         {
             client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Basic",
                 Convert.ToBase64String(Encoding.UTF8.GetBytes("apikey:" + apiKey)));
         }
 
-        public static async Task<Dictionary<string, JsonElement>> getDevicesAsync(int orgId)
+        public static async Task<Dictionary<string, JsonElement>> GetDevicesAsync(int orgId)
         {
             var responseString = await client.GetStringAsync(api_base + "links/cellular?tunnelable=1&limit=1000&orgid=" + orgId);
             return JsonSerializer.Deserialize<Dictionary<string, JsonElement>>(responseString);
         }
 
-        public static async Task<Dictionary<string, JsonElement>> getOrganizationsAsync(int userId)
+        public static async Task<Dictionary<string, JsonElement>> GetOrganizationsAsync(int userId)
         {
             var responseString = await client.GetStringAsync(api_base + "organizations?userid=" + userId);
             return JsonSerializer.Deserialize<Dictionary<string, JsonElement>>(responseString);
         }
 
-        public static async Task<Dictionary<string, JsonElement>> getUserInfoAsync()
+        public static async Task<Dictionary<string, JsonElement>> GetUserInfoAsync()
         {
             var responseString = await client.GetStringAsync(api_base + "users/me");
             return JsonSerializer.Deserialize<Dictionary<string, JsonElement>>(responseString);
         }
 
-        public static async Task<Dictionary<string, JsonElement>> hasTunnelKey(int userId)
+        public static async Task<Dictionary<string, JsonElement>> HasTunnelKey(int userId)
         {
             var responseString = await client.GetStringAsync(api_base + "tunnelkeys?userid=" + userId);
             return JsonSerializer.Deserialize<Dictionary<string, JsonElement>>(responseString);
         }
 
-        public static async void createTunnelKey()
+        public static async void CreateTunnelKey()
         {
             var response = await client.PostAsync(api_base + "tunnelkeys", null);
             if (response.IsSuccessStatusCode) {
                 var jsonresponse = JsonSerializer.Deserialize<Dictionary<string, JsonElement>>(await response.Content.ReadAsStringAsync());
-                SSH.createRSAKey(
+                SSH.CreateRSAKey(
                     Encoding.ASCII.GetBytes(jsonresponse["data"].GetProperty("public_key").GetString()),
                     Encoding.ASCII.GetBytes(jsonresponse["data"].GetProperty("private_key").GetString()));
             }
         }
 
-        public static async Task<bool> uploadTunnelKey()
+        public static async Task<bool> UploadTunnelKey()
         {
             var path = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.UserProfile), ".hologram/spacebridge.key.pub");
             var content = new FormUrlEncodedContent(new Dictionary<string, string>

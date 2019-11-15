@@ -15,11 +15,11 @@
                 <DropShadowEffect Opacity="0.245"/>
             </ScrollViewer.Effect>
             <Grid x:Name="ScrollGrid">
-                <ComboBox Visibility="Hidden" x:Name="DeviceDropdown1" HorizontalAlignment="Left" Margin="50,20,0,0" VerticalAlignment="Top" Width="120" BorderBrush="{x:Null}"/>
-                <TextBox Visibility="Hidden" x:Name="Local1" HorizontalAlignment="Left" Margin="185,20,0,0" Text="Local" TextWrapping="Wrap" VerticalAlignment="Top" Width="65" Height="22"/>
-                <TextBox Visibility="Hidden" x:Name="Remote1" HorizontalAlignment="Left" Margin="265,20,0,0" Text="Remote" TextWrapping="Wrap" VerticalAlignment="Top" Width="65" Height="22"/>
-                <Button Visibility="Hidden" x:Name="Connect1" Content="Connect" HorizontalAlignment="Left" Margin="344,20,0,0" VerticalAlignment="Top" Background="White" Foreground="#FF063248" FontWeight="Bold" Padding="4,2,4,2" BorderBrush="{x:Null}" Width="81" Click="Connect_Click"/>
-                <Ellipse Visibility="Hidden" x:Name="Status1" HorizontalAlignment="Left" Height="18" Margin="16,22,0,0" Stroke="Black" VerticalAlignment="Top" Width="18" Fill="#FFDC3F3F"/>
+                <ComboBox Visibility="Hidden" HorizontalAlignment="Left" Margin="50,20,0,0" VerticalAlignment="Top" Width="120" BorderBrush="{x:Null}"/>
+                <TextBox Visibility="Hidden"  HorizontalAlignment="Left" Margin="185,20,0,0" Text="Local" TextWrapping="Wrap" VerticalAlignment="Top" Width="65" Height="22"/>
+                <TextBox Visibility="Hidden" HorizontalAlignment="Left" Margin="265,20,0,0" Text="Remote" TextWrapping="Wrap" VerticalAlignment="Top" Width="65" Height="22"/>
+                <Button Visibility="Hidden" Content="Connect" HorizontalAlignment="Left" Margin="344,20,0,0" VerticalAlignment="Top" Background="White" Foreground="#FF063248" FontWeight="Bold" Padding="4,2,4,2" BorderBrush="{x:Null}" Width="81" Click="Connect_Click"/>
+                <Ellipse Visibility="Hidden" HorizontalAlignment="Left" Height="18" Margin="16,22,0,0" Stroke="Black" VerticalAlignment="Top" Width="18" Fill="#FFDC3F3F"/>
             </Grid>
         </ScrollViewer>
         <Label Visibility="Hidden" x:Name="DeviceLabel" Content="Device" HorizontalAlignment="Left" Margin="80,65,0,0" VerticalAlignment="Top" FontWeight="Bold" Background="{x:Null}" Foreground="White"/>
