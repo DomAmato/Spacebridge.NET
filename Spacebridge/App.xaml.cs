@@ -73,9 +73,14 @@ namespace Spacebridge
             if(keyWindow == null)
             {
                 keyWindow = new KeyManager();
+                keyWindow.Closed += Window_Closing;
             }
-            keyWindow.FillKeys();
             keyWindow.Show();
+        }
+
+        private void Window_Closing(object sender, EventArgs e)
+        {
+            keyWindow = null;
         }
 
         // When the exit menu item is clicked, make a call to terminate the ApplicationContext.

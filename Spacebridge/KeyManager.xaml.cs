@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Net.Http;
 using System.Text;
 using System.Windows;
 using System.Windows.Controls;
@@ -24,21 +25,38 @@ namespace Spacebridge
             FillKeys();
         }
 
-        public async void FillKeys()
+        private async void FillKeys()
         {
-            var keys = await API.GetTunnelKeys(true);
-            var index = 0;
-            foreach (var key in keys["data"].EnumerateArray())
+            try
             {
-                var pub_key = new TextBlock { HorizontalAlignment = HorizontalAlignment.Right, Margin = new Thickness(0,10 + (60 * index),30,0), Text = key.GetProperty("public_key").GetString().Substring(0, 70), TextWrapping = TextWrapping.Wrap, VerticalAlignment = VerticalAlignment.Top, Height = 50, Width = 300, Foreground = new SolidColorBrush((Color)ColorConverter.ConvertFromString("#FF1BD9B3")) };
-                var key_state = new Label { HorizontalAlignment = HorizontalAlignment.Left, Margin = new Thickness(80, 15 + (60 * index), 0, 0), Content = (key.GetProperty("disabled").GetInt32() == 1 ? "Disabled" : "Enabled"), Foreground = new SolidColorBrush((Color)ColorConverter.ConvertFromString((key.GetProperty("disabled").GetInt32() == 1 ? "#FFD63A3A" : "#FF1BD9B3"))), FontWeight = FontWeights.Bold, VerticalAlignment = VerticalAlignment.Top };
-                var toggleBtn = new Button { Content = "Toggle", HorizontalAlignment = HorizontalAlignment.Left, Margin = new Thickness(25, 18 + (60 * index), 0, 0), VerticalAlignment = VerticalAlignment.Top, Background = Brushes.White, Foreground = new SolidColorBrush((Color)ColorConverter.ConvertFromString("#FF063248")), FontWeight = FontWeights.Bold, Padding = new Thickness(4, 2, 4, 2), BorderBrush = null };
-                toggleBtn.Tag = new Tuple<int, bool, int>(key.GetProperty("id").GetInt32(), key.GetProperty("disabled").GetInt32() == 0, index);
-                toggleBtn.Click += Toggle_Click;
-                KeyScrollGrid.Children.Add(pub_key);
-                KeyScrollGrid.Children.Add(key_state);
-                KeyScrollGrid.Children.Add(toggleBtn);
-                index++;
+                var keys = await API.GetTunnelKeys(true);
+                var index = 0;
+                foreach (var key in keys["data"].EnumerateArray())
+                {
+                    var pub_key = new TextBlock { HorizontalAlignment = HorizontalAlignment.Right, Margin = new Thickness(0, 10 + (60 * index), 30, 0), Text = key.GetProperty("public_key").GetString().Substring(0, 70), TextWrapping = TextWrapping.Wrap, VerticalAlignment = VerticalAlignment.Top, Height = 50, Width = 300, Foreground = new SolidColorBrush((Color)ColorConverter.ConvertFromString("#FF1BD9B3")) };
+                    var key_state = new Label { HorizontalAlignment = HorizontalAlignment.Left, Margin = new Thickness(80, 15 + (60 * index), 0, 0), Content = (key.GetProperty("disabled").GetInt32() == 1 ? "Disabled" : "Enabled"), Foreground = new SolidColorBrush((Color)ColorConverter.ConvertFromString((key.GetProperty("disabled").GetInt32() == 1 ? "#FFD63A3A" : "#FF1BD9B3"))), FontWeight = FontWeights.Bold, VerticalAlignment = VerticalAlignment.Top };
+                    var toggleBtn = new Button { Content = "Toggle", HorizontalAlignment = HorizontalAlignment.Left, Margin = new Thickness(25, 18 + (60 * index), 0, 0), VerticalAlignment = VerticalAlignment.Top, Background = Brushes.White, Foreground = new SolidColorBrush((Color)ColorConverter.ConvertFromString("#FF063248")), FontWeight = FontWeights.Bold, Padding = new Thickness(4, 2, 4, 2), BorderBrush = null };
+                    toggleBtn.Tag = new Tuple<int, bool, int>(key.GetProperty("id").GetInt32(), key.GetProperty("disabled").GetInt32() == 0, index);
+                    toggleBtn.Click += Toggle_Click;
+                    KeyScrollGrid.Children.Add(pub_key);
+                    KeyScrollGrid.Children.Add(key_state);
+                    KeyScrollGrid.Children.Add(toggleBtn);
+                    index++;
+                }
+            }
+            catch (HttpRequestException e)
+            {
+                var error = new TextBlock {
+                    HorizontalAlignment = HorizontalAlignment.Left,
+                    Margin = new Thickness(30, 10, 30, 0),
+                    Text = "Request failed. Have you entered a valid API key yet?",
+                    TextWrapping = TextWrapping.Wrap,
+                    VerticalAlignment = VerticalAlignment.Top,
+                    Height = 150,
+                    FontSize = 24,
+                    FontWeight = FontWeights.Bold,
+                    Foreground = Brushes.IndianRed };
+                KeyScrollGrid.Children.Add(error);
             }
         }
 
