@@ -16,21 +16,29 @@ namespace Spacebridge
         private System.Windows.Forms.NotifyIcon TrayIcon;
         private System.Windows.Forms.ContextMenu contextMenu1;
         private System.Windows.Forms.MenuItem menuItem1;
+        private System.Windows.Forms.MenuItem menuItem2;
         private System.ComponentModel.IContainer components;
+
+        private KeyManager keyWindow;
         public App()
         {
             this.components = new System.ComponentModel.Container();
             this.contextMenu1 = new System.Windows.Forms.ContextMenu();
             this.menuItem1 = new System.Windows.Forms.MenuItem();
+            this.menuItem2 = new System.Windows.Forms.MenuItem();
 
             // Initialize contextMenu1
             this.contextMenu1.MenuItems.AddRange(
-                        new System.Windows.Forms.MenuItem[] { this.menuItem1 });
+                        new System.Windows.Forms.MenuItem[] { this.menuItem1, this.menuItem2 });
 
             // Initialize menuItem1
-            this.menuItem1.Index = 0;
+            this.menuItem1.Index = 1;
             this.menuItem1.Text = "Exit";
             this.menuItem1.Click += new EventHandler(this.exitItem_Click);
+
+            this.menuItem2.Index = 0;
+            this.menuItem2.Text = "Key Manager";
+            this.menuItem2.Click += new EventHandler(this.keyItem_Click);
 
             // Create the NotifyIcon.
             this.TrayIcon = new System.Windows.Forms.NotifyIcon(this.components);
@@ -57,6 +65,17 @@ namespace Spacebridge
             //events comes here
             MainWindow.Visibility = Visibility.Visible;
             MainWindow.WindowState = WindowState.Normal;
+        }
+
+        // When the exit menu item is clicked, make a call to terminate the ApplicationContext.
+        private void keyItem_Click(object sender, EventArgs e)
+        {
+            if(keyWindow == null)
+            {
+                keyWindow = new KeyManager();
+            }
+            keyWindow.FillKeys();
+            keyWindow.Show();
         }
 
         // When the exit menu item is clicked, make a call to terminate the ApplicationContext.
