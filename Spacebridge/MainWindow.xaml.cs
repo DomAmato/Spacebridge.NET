@@ -20,7 +20,6 @@ namespace Spacebridge
         Dictionary<string, JsonElement> orgDict;
         Dictionary<string, JsonElement> deviceDict;
         int selectedOrg = 0;
-        int userId = 0;
         string apiKey;
         private readonly List<Tuple<Ellipse, ComboBox, TextBox, TextBox, Button>> devices_list = new List<Tuple<Ellipse, ComboBox, TextBox, TextBox, Button>>();
 
@@ -31,7 +30,7 @@ namespace Spacebridge
 
         private async void LoadOrgs()
         {
-            Task<Dictionary<string, JsonElement>> response = API.GetOrganizationsAsync(userId);
+            Task<Dictionary<string, JsonElement>> response = API.GetOrganizationsAsync();
             Dictionary<string, JsonElement> jsonResponse = await response;
             orgDict = jsonResponse["data"].EnumerateArray().ToDictionary(org => org.GetProperty("name").GetString());
             OrgDropdown.ItemsSource = jsonResponse["data"].EnumerateArray()
@@ -87,7 +86,7 @@ namespace Spacebridge
 
         private async void CheckKeysExist()
         {
-            Task<Dictionary<string, JsonElement>> response = API.HasTunnelKey(userId);
+            Task<Dictionary<string, JsonElement>> response = API.GetTunnelKeys(false);
             Dictionary<string, JsonElement> jsonResponse = await response;
             var path = System.IO.Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.UserProfile), ".hologram/spacebridge.key.pub");
             if (jsonResponse["data"].GetArrayLength() == 0)
@@ -141,13 +140,10 @@ namespace Spacebridge
 
         private async void LoadUserInfo()
         {
-            Task<Dictionary<string, JsonElement>> response = API.GetUserInfoAsync();
-            Dictionary<string, JsonElement> jsonResponse = await response;
-            if (jsonResponse["success"].GetBoolean())
+            Task<bool> response = API.GetUserInfoAsync();
+            var success = await response;
+            if (success)
             {
-                userId = jsonResponse["data"].GetProperty("id").GetInt32();
-                UserInfo.Visibility = Visibility.Visible;
-                UserInfo.Text = "User Info: id - " + userId;
                 Continue.IsEnabled = true;
             }
             else
@@ -162,7 +158,6 @@ namespace Spacebridge
             LoadOrgs();
             Title.Visibility = Visibility.Hidden;
             Continue.Visibility = Visibility.Hidden;
-            UserInfo.Visibility = Visibility.Hidden;
             APIKeyLabel.Margin = new Thickness(30, 10, 0, 0);
             APIKey.Margin = new Thickness(100, 10, 46, 0);
             OrgDropdown.Visibility = Visibility.Visible;
