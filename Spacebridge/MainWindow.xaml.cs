@@ -8,6 +8,7 @@ using System.Windows.Controls;
 using System.IO;
 using System.Windows.Shapes;
 using System.Windows.Media;
+using System.Net.Http;
 
 namespace Spacebridge
 {
@@ -43,7 +44,8 @@ namespace Spacebridge
             Dictionary<string, JsonElement> jsonResponse = await response;
 
             deviceDict = jsonResponse["data"].EnumerateArray().ToDictionary(org => org.GetProperty("devicename").GetString());
-            foreach (var device in devices_list) {
+            foreach (var device in devices_list)
+            {
                 device.Item2.ItemsSource = jsonResponse["data"].EnumerateArray()
                 .Select(device => device.GetProperty("devicename")).ToArray();
             }
@@ -134,34 +136,39 @@ namespace Spacebridge
         private void APIKey_PasswordChanged(object sender, RoutedEventArgs e)
         {
             apiKey = ((PasswordBox)e.Source).Password;
-            API.SetApiKey(apiKey);
-            LoadUserInfo();
         }
 
         private async void LoadUserInfo()
         {
             Task<bool> response = API.GetUserInfoAsync();
-            var success = await response;
-            if (success)
+            try
             {
-                Continue.IsEnabled = true;
+                var success = await response;
+                if (success)
+                {
+                    LoadOrgs();
+                    Title.Visibility = Visibility.Hidden;
+                    Continue.Visibility = Visibility.Hidden;
+                    APIKeyLabel.Margin = new Thickness(30, 10, 0, 0);
+                    APIKey.Margin = new Thickness(100, 10, 46, 0);
+                    OrgDropdown.Visibility = Visibility.Visible;
+                    OrgLabel.Visibility = Visibility.Visible;
+                }
+                else
+                {
+                    MessageBox.Show("Something went wrong getting user info", "API Error", MessageBoxButton.OK, MessageBoxImage.Error);
+                }
             }
-            else
+            catch (HttpRequestException)
             {
-                Continue.IsEnabled = false;
+                MessageBox.Show("API Key is not valid", "API Key Error", MessageBoxButton.OK, MessageBoxImage.Error);
             }
-
         }
 
-        private void Do_Continue(object sender, RoutedEventArgs e)
+            private void Do_Continue(object sender, RoutedEventArgs e)
         {
-            LoadOrgs();
-            Title.Visibility = Visibility.Hidden;
-            Continue.Visibility = Visibility.Hidden;
-            APIKeyLabel.Margin = new Thickness(30, 10, 0, 0);
-            APIKey.Margin = new Thickness(100, 10, 46, 0);
-            OrgDropdown.Visibility = Visibility.Visible;
-            OrgLabel.Visibility = Visibility.Visible;
+            API.SetApiKey(apiKey);
+            LoadUserInfo();
         }
 
         private void Generate_Key(object sender, RoutedEventArgs e)
@@ -174,6 +181,15 @@ namespace Spacebridge
             else
             {
                 API.CreateTunnelKey();
+                if (File.Exists(path))
+                {
+                    Generate.Visibility = Visibility.Hidden;
+                    GenerateText.Visibility = Visibility.Hidden;
+                }
+                else
+                {
+                    MessageBox.Show("Error uploading the public key", "Key Upload Error", MessageBoxButton.OK, MessageBoxImage.Error);
+                }
             }
         }
 
@@ -204,12 +220,12 @@ namespace Spacebridge
         private void AddDevice_Click(object sender, RoutedEventArgs e)
         {
             var index = devices_list.Count();
-            var status = new Ellipse { HorizontalAlignment = HorizontalAlignment.Left, Height = 18, Margin = new Thickness(16,22 + (25 * index),0,0), Stroke = Brushes.Black, VerticalAlignment = VerticalAlignment.Top, Width = 18, Fill = new SolidColorBrush((Color)ColorConverter.ConvertFromString("#FFDC3F3F")) };
+            var status = new Ellipse { HorizontalAlignment = HorizontalAlignment.Left, Height = 18, Margin = new Thickness(16, 22 + (25 * index), 0, 0), Stroke = Brushes.Black, VerticalAlignment = VerticalAlignment.Top, Width = 18, Fill = new SolidColorBrush((Color)ColorConverter.ConvertFromString("#FFDC3F3F")) };
             var deviceMenu = new ComboBox { HorizontalAlignment = HorizontalAlignment.Left, Margin = new Thickness(50, 20 + (25 * index), 0, 0), VerticalAlignment = VerticalAlignment.Top, Width = 120 };
             deviceMenu.ItemsSource = deviceDict.Keys;
-            var local = new TextBox { HorizontalAlignment = HorizontalAlignment.Left, Margin = new Thickness(185, 20 + (25 * index), 0,0), Text = "5000", TextWrapping = TextWrapping.Wrap, VerticalAlignment = VerticalAlignment.Top, Width = 65, Height = 22 };
+            var local = new TextBox { HorizontalAlignment = HorizontalAlignment.Left, Margin = new Thickness(185, 20 + (25 * index), 0, 0), Text = "5000", TextWrapping = TextWrapping.Wrap, VerticalAlignment = VerticalAlignment.Top, Width = 65, Height = 22 };
             var remote = new TextBox { HorizontalAlignment = HorizontalAlignment.Left, Margin = new Thickness(265, 20 + (25 * index), 0, 0), Text = "22", TextWrapping = TextWrapping.Wrap, VerticalAlignment = VerticalAlignment.Top, Width = 65, Height = 22 };
-            var connect = new Button { Content = "Connect", HorizontalAlignment = HorizontalAlignment.Left, Margin = new Thickness(344, 20 + (25 * index), 0,0), VerticalAlignment = VerticalAlignment.Top, Background = Brushes.White, Foreground = new SolidColorBrush((Color)ColorConverter.ConvertFromString("#FF063248")), FontWeight = FontWeights.Bold, Padding = new Thickness(4,2,4,2), BorderBrush = null, Width = 81 };
+            var connect = new Button { Content = "Connect", HorizontalAlignment = HorizontalAlignment.Left, Margin = new Thickness(344, 20 + (25 * index), 0, 0), VerticalAlignment = VerticalAlignment.Top, Background = Brushes.White, Foreground = new SolidColorBrush((Color)ColorConverter.ConvertFromString("#FF063248")), FontWeight = FontWeights.Bold, Padding = new Thickness(4, 2, 4, 2), BorderBrush = null, Width = 81 };
             connect.Tag = index;
             connect.Click += Connect_Click;
             ScrollGrid.Children.Add(status);

@@ -31,6 +31,6 @@
         <Button Visibility="Hidden" x:Name="Generate" Content="Generate SSH Keys" HorizontalAlignment="Right" Margin="0,0,195,11" Background="White" Foreground="#FF063248" FontWeight="Bold" Padding="4,2,4,2" BorderBrush="{x:Null}" Width="116" Click="Generate_Key" Height="22" VerticalAlignment="Bottom" />
         <TextBlock Visibility="Hidden" x:Name="GenerateText" Text="No Spacebridge Keys Found or stored" TextWrapping="Wrap" HorizontalAlignment="Left" Margin="10,0,0,0" FontWeight="Bold" Background="{x:Null}" Foreground="White" Width="144" Height="40" VerticalAlignment="Bottom"/>
         <Label Content="Hologram Spacebridge" x:Name="Title" HorizontalAlignment="Left" Margin="59,49,0,0" VerticalAlignment="Top" FontWeight="Bold" FontSize="30" Background="{x:Null}" Foreground="White"/>
-        <Button IsEnabled="False" Content="Continue" x:Name="Continue" Margin="0,235,46,0" VerticalAlignment="Top" RenderTransformOrigin="1.267,2.087" Background="{x:Null}" Foreground="White" BorderThickness="2" BorderBrush="White" FontWeight="Bold" Padding="4,2,4,2" HorizontalAlignment="Right" Width="63" Click="Do_Continue"/>
+        <Button Content="Continue" x:Name="Continue" Margin="0,235,46,0" VerticalAlignment="Top" RenderTransformOrigin="1.267,2.087" Background="{x:Null}" Foreground="White" BorderThickness="2" BorderBrush="White" FontWeight="Bold" Padding="4,2,4,2" HorizontalAlignment="Right" Width="63" Click="Do_Continue"/>
     </Grid>
 </Window>

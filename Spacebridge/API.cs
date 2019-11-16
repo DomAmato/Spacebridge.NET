@@ -6,6 +6,7 @@ using System.Text.Json;
 using System.Threading.Tasks;
 using System.IO;
 using System.Text;
+using System.Windows;
 
 namespace Spacebridge
 {
@@ -42,13 +43,12 @@ namespace Spacebridge
                 userId = jsonResponse["data"].GetProperty("id").GetInt32();
                 return true;
             }
-                return false;
-            
+            return false;
         }
 
         public static async Task<Dictionary<string, JsonElement>> GetTunnelKeys(bool showDisabled)
         {
-            var responseString = await client.GetStringAsync(api_base + "tunnelkeys?userid=" + userId + "&withdisabled="+ (showDisabled ? 1 : 0));
+            var responseString = await client.GetStringAsync(api_base + "tunnelkeys?userid=" + userId + "&withdisabled=" + (showDisabled ? 1 : 0));
             return JsonSerializer.Deserialize<Dictionary<string, JsonElement>>(responseString);
         }
 
