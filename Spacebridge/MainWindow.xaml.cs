@@ -68,8 +68,8 @@ namespace Spacebridge
                 AddDevice.Visibility = Visibility.Visible;
                 var status = new Ellipse { HorizontalAlignment = HorizontalAlignment.Left, Height = 18, Margin = new Thickness(16, 22, 0, 0), Stroke = Brushes.Black, VerticalAlignment = VerticalAlignment.Top, Width = 18, Fill = new SolidColorBrush((Color)ColorConverter.ConvertFromString("#FFDC3F3F")) };
                 var deviceMenu = new ComboBox { HorizontalAlignment = HorizontalAlignment.Left, Margin = new Thickness(50, 20, 0, 0), VerticalAlignment = VerticalAlignment.Top, Width = 120 };
-                var local = new TextBox { HorizontalAlignment = HorizontalAlignment.Left, Margin = new Thickness(185, 20, 0, 0), Text = "Local", TextWrapping = TextWrapping.Wrap, VerticalAlignment = VerticalAlignment.Top, Width = 65, Height = 22 };
-                var remote = new TextBox { HorizontalAlignment = HorizontalAlignment.Left, Margin = new Thickness(265, 20, 0, 0), Text = "Remote", TextWrapping = TextWrapping.Wrap, VerticalAlignment = VerticalAlignment.Top, Width = 65, Height = 22 };
+                var local = new TextBox { HorizontalAlignment = HorizontalAlignment.Left, Margin = new Thickness(185, 20, 0, 0), Text = "5000", TextWrapping = TextWrapping.Wrap, VerticalAlignment = VerticalAlignment.Top, Width = 65, Height = 22 };
+                var remote = new TextBox { HorizontalAlignment = HorizontalAlignment.Left, Margin = new Thickness(265, 20, 0, 0), Text = "22", TextWrapping = TextWrapping.Wrap, VerticalAlignment = VerticalAlignment.Top, Width = 65, Height = 22 };
                 var connect = new Button { Content = "Connect", HorizontalAlignment = HorizontalAlignment.Left, Margin = new Thickness(344, 20, 0, 0), VerticalAlignment = VerticalAlignment.Top, Background = Brushes.White, Foreground = new SolidColorBrush((Color)ColorConverter.ConvertFromString("#FF063248")), FontWeight = FontWeights.Bold, Padding = new Thickness(4, 2, 4, 2), BorderBrush = null, Width = 81 };
                 connect.Tag = 0;
                 connect.Click += Connect_Click;
@@ -207,8 +207,8 @@ namespace Spacebridge
             var status = new Ellipse { HorizontalAlignment = HorizontalAlignment.Left, Height = 18, Margin = new Thickness(16,22 + (25 * index),0,0), Stroke = Brushes.Black, VerticalAlignment = VerticalAlignment.Top, Width = 18, Fill = new SolidColorBrush((Color)ColorConverter.ConvertFromString("#FFDC3F3F")) };
             var deviceMenu = new ComboBox { HorizontalAlignment = HorizontalAlignment.Left, Margin = new Thickness(50, 20 + (25 * index), 0, 0), VerticalAlignment = VerticalAlignment.Top, Width = 120 };
             deviceMenu.ItemsSource = deviceDict.Keys;
-            var local = new TextBox { HorizontalAlignment = HorizontalAlignment.Left, Margin = new Thickness(185, 20 + (25 * index), 0,0), Text = "Local", TextWrapping = TextWrapping.Wrap, VerticalAlignment = VerticalAlignment.Top, Width = 65, Height = 22 };
-            var remote = new TextBox { HorizontalAlignment = HorizontalAlignment.Left, Margin = new Thickness(265, 20 + (25 * index), 0, 0), Text = "Remote", TextWrapping = TextWrapping.Wrap, VerticalAlignment = VerticalAlignment.Top, Width = 65, Height = 22 };
+            var local = new TextBox { HorizontalAlignment = HorizontalAlignment.Left, Margin = new Thickness(185, 20 + (25 * index), 0,0), Text = "5000", TextWrapping = TextWrapping.Wrap, VerticalAlignment = VerticalAlignment.Top, Width = 65, Height = 22 };
+            var remote = new TextBox { HorizontalAlignment = HorizontalAlignment.Left, Margin = new Thickness(265, 20 + (25 * index), 0, 0), Text = "22", TextWrapping = TextWrapping.Wrap, VerticalAlignment = VerticalAlignment.Top, Width = 65, Height = 22 };
             var connect = new Button { Content = "Connect", HorizontalAlignment = HorizontalAlignment.Left, Margin = new Thickness(344, 20 + (25 * index), 0,0), VerticalAlignment = VerticalAlignment.Top, Background = Brushes.White, Foreground = new SolidColorBrush((Color)ColorConverter.ConvertFromString("#FF063248")), FontWeight = FontWeights.Bold, Padding = new Thickness(4,2,4,2), BorderBrush = null, Width = 81 };
             connect.Tag = index;
             connect.Click += Connect_Click;
