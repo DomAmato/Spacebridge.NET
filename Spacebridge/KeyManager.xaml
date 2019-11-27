@@ -6,9 +6,9 @@
         xmlns:local="clr-namespace:Spacebridge"
         mc:Ignorable="d"
         Title="Key Manager" Height="400" Width="500">
-    <Grid Background="#FF4E6CFF">
+    <Grid Background="#4e6cff">
         <Label Content="Manage your Spacebridge Keys:" HorizontalAlignment="Left" Margin="10,10,0,0" VerticalAlignment="Top" Foreground="White" FontWeight="Bold" FontSize="18" Width="287"/>
-        <ScrollViewer Margin="0,60,0,0" Background="#FF063248">
+        <ScrollViewer Margin="0,60,0,0" Background="#253054">
             <Grid Name="KeyScrollGrid" Margin="0,0,0,0"/>
         </ScrollViewer>
 

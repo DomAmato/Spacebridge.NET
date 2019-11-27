@@ -5,31 +5,32 @@ using System.Data;
 using System.Linq;
 using System.Threading.Tasks;
 using System.Windows;
+using System.Windows.Forms;
 
 namespace Spacebridge
 {
     /// <summary>
     /// Interaction logic for App.xaml
     /// </summary>
-    public partial class App : Application
+    public partial class App : System.Windows.Application
     {
-        private System.Windows.Forms.NotifyIcon TrayIcon;
-        private System.Windows.Forms.ContextMenu contextMenu1;
-        private System.Windows.Forms.MenuItem menuItem1;
-        private System.Windows.Forms.MenuItem menuItem2;
+        private NotifyIcon TrayIcon;
+        private ContextMenu contextMenu1;
+        private MenuItem menuItem1;
+        private MenuItem menuItem2;
         private System.ComponentModel.IContainer components;
 
         private KeyManager keyWindow;
         public App()
         {
             this.components = new System.ComponentModel.Container();
-            this.contextMenu1 = new System.Windows.Forms.ContextMenu();
-            this.menuItem1 = new System.Windows.Forms.MenuItem();
-            this.menuItem2 = new System.Windows.Forms.MenuItem();
+            this.contextMenu1 = new ContextMenu();
+            this.menuItem1 = new MenuItem();
+            this.menuItem2 = new MenuItem();
 
             // Initialize contextMenu1
             this.contextMenu1.MenuItems.AddRange(
-                        new System.Windows.Forms.MenuItem[] { this.menuItem1, this.menuItem2 });
+                        new MenuItem[] { this.menuItem1, this.menuItem2 });
 
             // Initialize menuItem1
             this.menuItem1.Index = 1;
@@ -41,11 +42,11 @@ namespace Spacebridge
             this.menuItem2.Click += new EventHandler(this.keyItem_Click);
 
             // Create the NotifyIcon.
-            this.TrayIcon = new System.Windows.Forms.NotifyIcon(this.components);
+            this.TrayIcon = new NotifyIcon(this.components);
 
             // The Icon property sets the icon that will appear
             // in the systray for this application.
-            TrayIcon.Icon = Spacebridge.Resources.App_Icon;
+            TrayIcon.Icon = Spacebridge.Resources.tray_icon;
 
             // The ContextMenu property sets the menu that will
             // appear when the systray icon is right clicked.
@@ -58,6 +59,23 @@ namespace Spacebridge
 
             // Handle the DoubleClick event to activate the form.
             TrayIcon.Click += TrayIcon_Click;
+        }
+
+        public void AddConnectionToContextMenu(int local_port, string menu_item)
+        {
+            MenuItem connectionItem = new MenuItem();
+
+            connectionItem.Index = this.contextMenu1.MenuItems.Count;
+            connectionItem.Text = menu_item;
+            connectionItem.Tag = local_port;
+            connectionItem.Click += new EventHandler(this.Disconnect_Click);
+
+            this.contextMenu1.MenuItems.Add(connectionItem);
+        }
+
+        private void Disconnect_Click(object sender, EventArgs e)
+        {
+            SSH.StopForwarding((int)((MenuItem)sender).Tag);
         }
 
         void TrayIcon_Click(object sender, EventArgs e)

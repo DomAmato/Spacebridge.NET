@@ -63,19 +63,20 @@ namespace Spacebridge {
         /// <summary>
         ///   Looks up a localized resource of type System.Drawing.Icon similar to (Icon).
         /// </summary>
-        internal static System.Drawing.Icon App_Icon {
+        internal static System.Drawing.Icon app_icon {
             get {
-                object obj = ResourceManager.GetObject("App_Icon", resourceCulture);
+                object obj = ResourceManager.GetObject("app_icon", resourceCulture);
                 return ((System.Drawing.Icon)(obj));
             }
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to .
+        ///   Looks up a localized resource of type System.Drawing.Icon similar to (Icon).
         /// </summary>
-        internal static string f {
+        internal static System.Drawing.Icon tray_icon {
             get {
-                return ResourceManager.GetString("f", resourceCulture);
+                object obj = ResourceManager.GetObject("tray_icon", resourceCulture);
+                return ((System.Drawing.Icon)(obj));
             }
         }
     }

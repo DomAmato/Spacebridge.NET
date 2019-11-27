@@ -69,7 +69,7 @@ namespace Spacebridge
             if (response.IsSuccessStatusCode)
             {
                 var jsonresponse = JsonSerializer.Deserialize<Dictionary<string, JsonElement>>(await response.Content.ReadAsStringAsync());
-                SSH.CreateRSAKey(
+                SSH.SaveRSAKey(
                     Encoding.ASCII.GetBytes(jsonresponse["data"].GetProperty("public_key").GetString()),
                     Encoding.ASCII.GetBytes(jsonresponse["data"].GetProperty("private_key").GetString()));
             }

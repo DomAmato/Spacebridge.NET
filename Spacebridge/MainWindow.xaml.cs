@@ -68,11 +68,11 @@ namespace Spacebridge
                 RPortLabel.Visibility = Visibility.Visible;
                 LPortLabel.Visibility = Visibility.Visible;
                 AddDevice.Visibility = Visibility.Visible;
-                var status = new Ellipse { HorizontalAlignment = HorizontalAlignment.Left, Height = 18, Margin = new Thickness(16, 22, 0, 0), Stroke = Brushes.Black, VerticalAlignment = VerticalAlignment.Top, Width = 18, Fill = new SolidColorBrush((Color)ColorConverter.ConvertFromString("#FFDC3F3F")) };
+                var status = new Ellipse { HorizontalAlignment = HorizontalAlignment.Left, Height = 18, Margin = new Thickness(16, 22, 0, 0), Stroke = Brushes.Black, VerticalAlignment = VerticalAlignment.Top, Width = 18, Fill = new SolidColorBrush((Color)ColorConverter.ConvertFromString("#f24569")) };
                 var deviceMenu = new ComboBox { HorizontalAlignment = HorizontalAlignment.Left, Margin = new Thickness(50, 20, 0, 0), VerticalAlignment = VerticalAlignment.Top, Width = 120 };
                 var local = new TextBox { HorizontalAlignment = HorizontalAlignment.Left, Margin = new Thickness(185, 20, 0, 0), Text = "5000", TextWrapping = TextWrapping.Wrap, VerticalAlignment = VerticalAlignment.Top, Width = 65, Height = 22 };
                 var remote = new TextBox { HorizontalAlignment = HorizontalAlignment.Left, Margin = new Thickness(265, 20, 0, 0), Text = "22", TextWrapping = TextWrapping.Wrap, VerticalAlignment = VerticalAlignment.Top, Width = 65, Height = 22 };
-                var connect = new Button { Content = "Connect", HorizontalAlignment = HorizontalAlignment.Left, Margin = new Thickness(344, 20, 0, 0), VerticalAlignment = VerticalAlignment.Top, Background = Brushes.White, Foreground = new SolidColorBrush((Color)ColorConverter.ConvertFromString("#FF063248")), FontWeight = FontWeights.Bold, Padding = new Thickness(4, 2, 4, 2), BorderBrush = null, Width = 81 };
+                var connect = new Button { Content = "Connect", HorizontalAlignment = HorizontalAlignment.Left, Margin = new Thickness(344, 20, 0, 0), VerticalAlignment = VerticalAlignment.Top, Background = Brushes.White, Foreground = new SolidColorBrush((Color)ColorConverter.ConvertFromString("#0a1435")), FontWeight = FontWeights.Bold, Padding = new Thickness(4, 2, 4, 2), BorderBrush = null, Width = 81 };
                 connect.Tag = 0;
                 connect.Click += Connect_Click;
                 ScrollGrid.Children.Add(status);
@@ -136,6 +136,14 @@ namespace Spacebridge
         private void APIKey_PasswordChanged(object sender, RoutedEventArgs e)
         {
             apiKey = ((PasswordBox)e.Source).Password;
+            if (apiKey.Length > 0)
+            {
+                Continue.IsEnabled = true;
+            }
+            else
+            {
+                Continue.IsEnabled = false;
+            }
         }
 
         private async void LoadUserInfo()
@@ -165,7 +173,7 @@ namespace Spacebridge
             }
         }
 
-            private void Do_Continue(object sender, RoutedEventArgs e)
+        private void Do_Continue(object sender, RoutedEventArgs e)
         {
             API.SetApiKey(apiKey);
             LoadUserInfo();
@@ -196,36 +204,49 @@ namespace Spacebridge
         private void Connect_Click(object sender, RoutedEventArgs e)
         {
             int index = (int)((Button)sender).Tag;
-            try
+            ConnectAndForward(index);
+        }
+
+        private async void ConnectAndForward(int index)
+        {
+            var local = Convert.ToInt32(devices_list[index].Item3.Text);
+            var remote = Convert.ToInt32(devices_list[index].Item4.Text);
+            var deviceId = deviceDict[devices_list[index].Item2.Text].GetProperty("id").GetInt32();
+
+            var success = await Task.Run(() =>
             {
-                var local = Convert.ToInt32(devices_list[index].Item3.Text);
-                var remote = Convert.ToInt32(devices_list[index].Item4.Text);
-                var success = SSH.BeginForwarding(deviceDict[devices_list[index].Item2.Text].GetProperty("id").GetInt32(), local, remote);
-                if (success)
+                try
                 {
-                    devices_list[index].Item1.Fill = Brushes.Green;
-                    var tooltip = new ToolTip
-                    {
-                        Content = "Connected to " + devices_list[index].Item2.Text + " - Forwarding local port: " + local
-                    };
-                    devices_list[index].Item1.ToolTip = tooltip;
+                    return SSH.BeginForwarding(deviceId, local, remote);
                 }
-            }
-            catch (FormatException ex)
+                catch (FormatException ex)
+                {
+                    System.Diagnostics.Debug.WriteLine(ex.Message);
+                    return false;
+                }
+            });
+
+            if (success)
             {
-                System.Diagnostics.Debug.WriteLine(ex.Message);
+                devices_list[index].Item1.Fill = new SolidColorBrush((Color)ColorConverter.ConvertFromString("#2dbf71"));
+                var tooltip = new ToolTip
+                {
+                    Content = "Connected to " + devices_list[index].Item2.Text + " - Forwarding local port: " + local
+                };
+                devices_list[index].Item1.ToolTip = tooltip;
+                ((App)Application.Current).AddConnectionToContextMenu(local, "Disconnect from " + devices_list[index].Item2.Text);
             }
         }
 
         private void AddDevice_Click(object sender, RoutedEventArgs e)
         {
             var index = devices_list.Count();
-            var status = new Ellipse { HorizontalAlignment = HorizontalAlignment.Left, Height = 18, Margin = new Thickness(16, 22 + (25 * index), 0, 0), Stroke = Brushes.Black, VerticalAlignment = VerticalAlignment.Top, Width = 18, Fill = new SolidColorBrush((Color)ColorConverter.ConvertFromString("#FFDC3F3F")) };
+            var status = new Ellipse { HorizontalAlignment = HorizontalAlignment.Left, Height = 18, Margin = new Thickness(16, 22 + (25 * index), 0, 0), Stroke = Brushes.Black, VerticalAlignment = VerticalAlignment.Top, Width = 18, Fill = new SolidColorBrush((Color)ColorConverter.ConvertFromString("#f24569")) };
             var deviceMenu = new ComboBox { HorizontalAlignment = HorizontalAlignment.Left, Margin = new Thickness(50, 20 + (25 * index), 0, 0), VerticalAlignment = VerticalAlignment.Top, Width = 120 };
             deviceMenu.ItemsSource = deviceDict.Keys;
             var local = new TextBox { HorizontalAlignment = HorizontalAlignment.Left, Margin = new Thickness(185, 20 + (25 * index), 0, 0), Text = "5000", TextWrapping = TextWrapping.Wrap, VerticalAlignment = VerticalAlignment.Top, Width = 65, Height = 22 };
             var remote = new TextBox { HorizontalAlignment = HorizontalAlignment.Left, Margin = new Thickness(265, 20 + (25 * index), 0, 0), Text = "22", TextWrapping = TextWrapping.Wrap, VerticalAlignment = VerticalAlignment.Top, Width = 65, Height = 22 };
-            var connect = new Button { Content = "Connect", HorizontalAlignment = HorizontalAlignment.Left, Margin = new Thickness(344, 20 + (25 * index), 0, 0), VerticalAlignment = VerticalAlignment.Top, Background = Brushes.White, Foreground = new SolidColorBrush((Color)ColorConverter.ConvertFromString("#FF063248")), FontWeight = FontWeights.Bold, Padding = new Thickness(4, 2, 4, 2), BorderBrush = null, Width = 81 };
+            var connect = new Button { Content = "Connect", HorizontalAlignment = HorizontalAlignment.Left, Margin = new Thickness(344, 20 + (25 * index), 0, 0), VerticalAlignment = VerticalAlignment.Top, Background = Brushes.White, Foreground = new SolidColorBrush((Color)ColorConverter.ConvertFromString("#0a1435")), FontWeight = FontWeights.Bold, Padding = new Thickness(4, 2, 4, 2), BorderBrush = null, Width = 81 };
             connect.Tag = index;
             connect.Click += Connect_Click;
             ScrollGrid.Children.Add(status);

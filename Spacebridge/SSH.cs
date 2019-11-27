@@ -17,7 +17,7 @@ namespace Spacebridge
         private static readonly List<PrivateKeyFile> spacebridge_key = new List<PrivateKeyFile>();
         private static readonly Dictionary<int, Tuple<ForwardedPortLocal, SshClient>> forwarded_ports = new Dictionary<int, Tuple<ForwardedPortLocal, SshClient>>();
 
-        public static void CreateRSAKey(byte[] publicKey, byte[] privateKey)
+        public static void SaveRSAKey(byte[] publicKey, byte[] privateKey)
         {
             var path = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.UserProfile), ".hologram");
             Directory.CreateDirectory(path);
@@ -25,22 +25,27 @@ namespace Spacebridge
             File.WriteAllBytes(path + "/spacebridge.key.pub", publicKey);
 
             spacebridge_key.Add(new PrivateKeyFile(path + "/spacebridge.key"));
-            //using (var rsa = new RSACryptoServiceProvider(2048))
-            //{
-            //    try
-            //    {
-
-            //        // Do something with the key...
-            //        // Encrypt, export, etc.
-            //    }
-            //    finally
-            //    {
-            //        rsa.PersistKeyInCsp = false;
-            //    }
-            //}
         }
 
-        public static void CreateDSSKey()
+        public static void GenerateRSAKey()
+        {
+            using (var rsa = new RSACryptoServiceProvider(2048))
+            {
+                try
+                {
+                    var path = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.UserProfile), ".hologram");
+                    Directory.CreateDirectory(path);
+                    File.WriteAllBytes(path + "/spacebridge.key", rsa.ExportRSAPrivateKey());
+                    File.WriteAllBytes(path + "/spacebridge.key.pub", rsa.ExportRSAPublicKey());
+                }
+                finally
+                {
+                    rsa.PersistKeyInCsp = false;
+                }
+            }
+        }
+
+        public static void GenerateDSSKey()
         {
             using var dsa = new DSACryptoServiceProvider(2048);
             try
