@@ -1,7 +1,9 @@
 using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Linq;
 using System.Security.Cryptography;
+using System.Windows;
 using Renci.SshNet;
 using Renci.SshNet.Common;
 
@@ -15,7 +17,7 @@ namespace Spacebridge
         private static readonly string tunnel_server = "tunnel.hologram.io";
         private static readonly int tunnel_port = 999;
         private static readonly List<PrivateKeyFile> spacebridge_key = new List<PrivateKeyFile>();
-        private static readonly Dictionary<int, Tuple<ForwardedPortLocal, SshClient>> forwarded_ports = new Dictionary<int, Tuple<ForwardedPortLocal, SshClient>>();
+        private static SshClient client = null;
 
         public static void SaveRSAKey(byte[] publicKey, byte[] privateKey)
         {
@@ -61,9 +63,9 @@ namespace Spacebridge
 
         public static bool BeginForwarding(int linkId, int local_port, int remote_port)
         {
-            if (forwarded_ports.ContainsKey(local_port))
+            if (client != null && client.ForwardedPorts.Select(port => ((ForwardedPortLocal)port).BoundPort).ToList().Contains((uint)local_port))
             {
-                System.Diagnostics.Debug.WriteLine("Local port is already forwarding, use a different port");
+                MessageBox.Show("Local port is already forwarding, use a different port", "SSH Error", MessageBoxButton.OK, MessageBoxImage.Error);
                 return false;
             }
             if (spacebridge_key.Count == 0)
@@ -71,54 +73,68 @@ namespace Spacebridge
                 var path = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.UserProfile), ".hologram");
                 spacebridge_key.Add(new PrivateKeyFile(path + "/spacebridge.key"));
             }
-            using var client = new SshClient(tunnel_server, tunnel_port, "htunnel", spacebridge_key.ToArray());
-            client.HostKeyReceived += (sender, e) =>
-            {
-                if (hologram_fingerprint.Length == e.FingerPrint.Length)
+            if (client == null) {
+                client = new SshClient(tunnel_server, tunnel_port, "htunnel", spacebridge_key.ToArray())
                 {
-                    for (var i = 0; i < hologram_fingerprint.Length; i++)
+                    KeepAliveInterval = new TimeSpan(0, 0, 30)
+                };
+                client.HostKeyReceived += (sender, e) =>
+                {
+                    if (hologram_fingerprint.Length == e.FingerPrint.Length)
                     {
-                        if (hologram_fingerprint[i] != e.FingerPrint[i])
+                        for (var i = 0; i < hologram_fingerprint.Length; i++)
                         {
-                            e.CanTrust = false;
-                            break;
+                            if (hologram_fingerprint[i] != e.FingerPrint[i])
+                            {
+                                e.CanTrust = false;
+                                break;
+                            }
                         }
                     }
-                }
-                else
+                    else
+                    {
+                        e.CanTrust = false;
+                    }
+                };
+                try
                 {
-                    e.CanTrust = false;
+                    client.Connect();
                 }
-            };
-            try
-            {
-                client.Connect();
-            }
-            catch (Exception e)
-            {
-                System.Diagnostics.Debug.WriteLine(e.Message);
-                return false;
+                catch (Exception e)
+                {
+                    MessageBox.Show(e.Message, "SSH Error", MessageBoxButton.OK, MessageBoxImage.Error);
+                    System.Diagnostics.Debug.WriteLine(e.Message);
+                    return false;
+                }
+                client.ErrorOccurred += Client_ErrorOccurred;
             }
 
-            var port = new ForwardedPortLocal("localhost", (uint)local_port, "link" + linkId, (uint)remote_port);
+            var port = new ForwardedPortLocal((uint)local_port, "link" + linkId, (uint)remote_port);
             client.AddForwardedPort(port);
 
             port.Exception += delegate (object sender, ExceptionEventArgs e)
             {
+                MessageBox.Show(e.Exception.Message, "SSH Error", MessageBoxButton.OK, MessageBoxImage.Error);
                 System.Diagnostics.Debug.WriteLine(e.Exception.ToString());
             };
             port.Start();
-            forwarded_ports.Add(local_port, new Tuple<ForwardedPortLocal, SshClient>(port, client));
             return true;
+        }
+
+        private static void Client_ErrorOccurred(object sender, ExceptionEventArgs e)
+        {
+            MessageBox.Show(e.Exception.Message, "SSH Error", MessageBoxButton.OK, MessageBoxImage.Error);
+            System.Diagnostics.Debug.WriteLine(e.Exception.ToString());
         }
 
         public static void StopForwarding(int local_port)
         {
-            var forwardingClient = forwarded_ports[local_port];
-            if (forwardingClient != null)
+                foreach(ForwardedPortLocal port in client.ForwardedPorts)
             {
-                forwardingClient.Item1.Stop();
-                forwardingClient.Item2.Disconnect();
+                if (port.BoundPort == local_port)
+                {
+                    port.Stop();
+                }
             }
         }
     }

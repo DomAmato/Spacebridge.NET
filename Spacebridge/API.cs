@@ -13,7 +13,7 @@ namespace Spacebridge
     static class API
     {
         private static readonly HttpClient client = new HttpClient();
-        private static readonly String api_base = "https://dashboard.hologram.io/api/1/";
+        private static readonly string api_base = "https://dashboard.hologram.io/api/1/";
         private static int userId = 0;
 
         public static void SetApiKey(String apiKey)

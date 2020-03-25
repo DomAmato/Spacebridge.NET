@@ -19,6 +19,7 @@ namespace Spacebridge
     public partial class KeyManager : Window
     {
         private readonly List<Tuple<Button, Label, TextBlock>> keys_ui = new List<Tuple<Button, Label, TextBlock>>();
+
         public KeyManager()
         {
             InitializeComponent();

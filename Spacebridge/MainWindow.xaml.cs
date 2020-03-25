@@ -17,7 +17,6 @@ namespace Spacebridge
     /// </summary>
     public partial class MainWindow : Window
     {
-
         Dictionary<string, JsonElement> orgDict;
         Dictionary<string, JsonElement> deviceDict;
         int selectedOrg = 0;
@@ -59,7 +58,6 @@ namespace Spacebridge
 
         private void Organizations_SelectionChanged(object sender, SelectionChangedEventArgs e)
         {
-            // Selected SSID
             selectedOrg = orgDict[((JsonElement)e.AddedItems[0]).GetString()].GetProperty("id").GetInt32();
             if (ScrollArea.Visibility == Visibility.Hidden)
             {
@@ -207,6 +205,34 @@ namespace Spacebridge
             ConnectAndForward(index);
         }
 
+        private void Disconnect_Click(object sender, RoutedEventArgs e)
+        {
+            var indexes = (Tuple<int, int, string>)((Button)sender).Tag;
+            devices_list[indexes.Item2].Item5.Content = "Connect";
+            devices_list[indexes.Item2].Item5.Click += Connect_Click;
+            devices_list[indexes.Item2].Item5.Click -= Disconnect_Click;
+            devices_list[indexes.Item2].Item1.Fill = new SolidColorBrush((Color)ColorConverter.ConvertFromString("#f24569"));
+            devices_list[indexes.Item2].Item1.ToolTip = null;
+            ((App)Application.Current).RemoveConnectionToContextMenu("Disconnect from " + indexes.Item3);
+            SSH.StopForwarding(indexes.Item1);
+        }
+
+        public void Disconnect_MenuItemSelected(int local_port)
+        {
+            foreach(var device in this.devices_list)
+            {
+                if (((string)((ToolTip)device.Item1.ToolTip).Content).Contains(""+local_port))
+                {
+                    device.Item5.Content = "Connect";
+                    device.Item5.Click += Connect_Click;
+                    device.Item5.Click -= Disconnect_Click;
+                    device.Item1.Fill = new SolidColorBrush((Color)ColorConverter.ConvertFromString("#f24569"));
+                    device.Item1.ToolTip = null;
+                    break;
+                }
+            }
+        }
+
         private async void ConnectAndForward(int index)
         {
             var local = Convert.ToInt32(devices_list[index].Item3.Text);
@@ -228,13 +254,18 @@ namespace Spacebridge
 
             if (success)
             {
+                var indexes = new Tuple<int, int, string>(local, index, devices_list[index].Item2.Text);
+                devices_list[index].Item5.Content = "Disconnect";
+                devices_list[index].Item5.Tag = indexes;
+                devices_list[index].Item5.Click -= Connect_Click;
+                devices_list[index].Item5.Click += Disconnect_Click;
                 devices_list[index].Item1.Fill = new SolidColorBrush((Color)ColorConverter.ConvertFromString("#2dbf71"));
                 var tooltip = new ToolTip
                 {
                     Content = "Connected to " + devices_list[index].Item2.Text + " - Forwarding local port: " + local
                 };
                 devices_list[index].Item1.ToolTip = tooltip;
-                ((App)Application.Current).AddConnectionToContextMenu(local, "Disconnect from " + devices_list[index].Item2.Text);
+                ((App)Application.Current).AddConnectionToContextMenu(index, "Disconnect from " + devices_list[index].Item2.Text);
             }
         }
 
