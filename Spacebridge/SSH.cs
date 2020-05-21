@@ -73,19 +73,22 @@ namespace Spacebridge
                 var path = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.UserProfile), ".hologram");
                 spacebridge_key.Add(new PrivateKeyFile(path + "/spacebridge.key"));
             }
-            if (client == null) {
+            if (client == null)
+            {
                 client = new SshClient(tunnel_server, tunnel_port, "htunnel", spacebridge_key.ToArray())
                 {
                     KeepAliveInterval = new TimeSpan(0, 0, 30)
                 };
                 client.HostKeyReceived += (sender, e) =>
                 {
+                    System.Diagnostics.Debug.WriteLine("Got finerprint");
                     if (hologram_fingerprint.Length == e.FingerPrint.Length)
                     {
                         for (var i = 0; i < hologram_fingerprint.Length; i++)
                         {
                             if (hologram_fingerprint[i] != e.FingerPrint[i])
                             {
+                                System.Diagnostics.Debug.WriteLine("Finerprint Denied");
                                 e.CanTrust = false;
                                 break;
                             }
@@ -93,12 +96,14 @@ namespace Spacebridge
                     }
                     else
                     {
+                        System.Diagnostics.Debug.WriteLine("Finerprint Denied");
                         e.CanTrust = false;
                     }
                 };
                 try
                 {
                     client.Connect();
+                    System.Diagnostics.Debug.WriteLine("Client Connected");
                 }
                 catch (Exception e)
                 {
@@ -109,15 +114,21 @@ namespace Spacebridge
                 client.ErrorOccurred += Client_ErrorOccurred;
             }
 
-            var port = new ForwardedPortLocal((uint)local_port, "link" + linkId, (uint)remote_port);
+            var port = new ForwardedPortLocal("localhost", (uint)local_port, "link" + linkId, (uint)remote_port);
             client.AddForwardedPort(port);
 
             port.Exception += delegate (object sender, ExceptionEventArgs e)
             {
-                MessageBox.Show(e.Exception.Message, "SSH Error", MessageBoxButton.OK, MessageBoxImage.Error);
+                MessageBox.Show("Spacebridge encountered an error:\n" + e.Exception.Message, "SSH Error", MessageBoxButton.OK, MessageBoxImage.Error);
                 System.Diagnostics.Debug.WriteLine(e.Exception.ToString());
             };
+
+            port.RequestReceived += delegate (object sender, PortForwardEventArgs e)
+            {
+                System.Diagnostics.Debug.WriteLine(e.ToString());
+            };
             port.Start();
+            System.Diagnostics.Debug.WriteLine("Forwarding " + port.BoundHost + ":" + port.BoundPort + " to " + port.Host + ":" + port.Port);
             return true;
         }
 
@@ -129,7 +140,7 @@ namespace Spacebridge
 
         public static void StopForwarding(int local_port)
         {
-                foreach(ForwardedPortLocal port in client.ForwardedPorts)
+            foreach (ForwardedPortLocal port in client.ForwardedPorts)
             {
                 if (port.BoundPort == local_port)
                 {

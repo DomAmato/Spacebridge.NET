@@ -84,7 +84,6 @@ namespace Spacebridge
                 }
             }
             SSH.StopForwarding((int)((MenuItem)sender).Tag);
-            ((MainWindow)MainWindow)
         }
 
         void TrayIcon_Click(object sender, EventArgs e)

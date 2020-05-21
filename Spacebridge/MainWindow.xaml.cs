@@ -209,6 +209,7 @@ namespace Spacebridge
         {
             var indexes = (Tuple<int, int, string>)((Button)sender).Tag;
             devices_list[indexes.Item2].Item5.Content = "Connect";
+            devices_list[indexes.Item2].Item5.Tag = indexes.Item2;
             devices_list[indexes.Item2].Item5.Click += Connect_Click;
             devices_list[indexes.Item2].Item5.Click -= Disconnect_Click;
             devices_list[indexes.Item2].Item1.Fill = new SolidColorBrush((Color)ColorConverter.ConvertFromString("#f24569"));
@@ -219,17 +220,20 @@ namespace Spacebridge
 
         public void Disconnect_MenuItemSelected(int local_port)
         {
+            var index = 0;
             foreach(var device in this.devices_list)
             {
                 if (((string)((ToolTip)device.Item1.ToolTip).Content).Contains(""+local_port))
                 {
                     device.Item5.Content = "Connect";
+                    device.Item5.Tag = index;
                     device.Item5.Click += Connect_Click;
                     device.Item5.Click -= Disconnect_Click;
                     device.Item1.Fill = new SolidColorBrush((Color)ColorConverter.ConvertFromString("#f24569"));
                     device.Item1.ToolTip = null;
                     break;
                 }
+                index++;
             }
         }
 
