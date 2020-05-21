@@ -123,10 +123,6 @@ namespace Spacebridge
                 System.Diagnostics.Debug.WriteLine(e.Exception.ToString());
             };
 
-            port.RequestReceived += delegate (object sender, PortForwardEventArgs e)
-            {
-                System.Diagnostics.Debug.WriteLine(e.ToString());
-            };
             port.Start();
             System.Diagnostics.Debug.WriteLine("Forwarding " + port.BoundHost + ":" + port.BoundPort + " to " + port.Host + ":" + port.Port);
             return true;
