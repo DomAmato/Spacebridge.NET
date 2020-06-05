@@ -10,24 +10,24 @@ namespace Spacebridge
     public partial class App : System.Windows.Application
     {
         private readonly NotifyIcon TrayIcon;
-        private readonly ContextMenu contextMenu1;
-        private readonly MenuItem exit;
-        private readonly MenuItem keyManager;
-        private readonly MenuItem connections;
+        private readonly ContextMenuStrip contextMenu1;
+        private readonly ToolStripMenuItem  exit;
+        private readonly ToolStripMenuItem  keyManager;
+        private readonly ToolStripMenuItem connections;
         private readonly System.ComponentModel.IContainer components;
 
         private KeyManager KeyWindow;
         public App()
         {
             this.components = new System.ComponentModel.Container();
-            this.contextMenu1 = new ContextMenu();
-            this.exit = new MenuItem("Exit", new EventHandler(this.ExitItem_Click));
-            this.keyManager = new MenuItem("Key Manager", new EventHandler(this.KeyItem_Click));
-            this.connections = new MenuItem("Connections", new MenuItem[] { });
+            this.contextMenu1 = new ContextMenuStrip();
+            this.exit = new ToolStripMenuItem("Exit", null, new EventHandler(this.ExitItem_Click));
+            this.keyManager = new ToolStripMenuItem("Key Manager", null, new EventHandler(this.KeyItem_Click));
+            this.connections = new ToolStripMenuItem("Connections", null, new ToolStripMenuItem[] { });
 
             // Initialize contextMenu1
-            this.contextMenu1.MenuItems.AddRange(
-                        new MenuItem[] { connections, this.keyManager, this.exit });
+            this.contextMenu1.Items.AddRange(
+                        new ToolStripMenuItem[] { connections, this.keyManager, this.exit });
 
             // Create the NotifyIcon.
             this.TrayIcon = new NotifyIcon(this.components);
@@ -38,7 +38,7 @@ namespace Spacebridge
 
             // The ContextMenu property sets the menu that will
             // appear when the systray icon is right clicked.
-            TrayIcon.ContextMenu = this.contextMenu1;
+            TrayIcon.ContextMenuStrip = this.contextMenu1;
 
             // The Text property sets the text that will be displayed,
             // in a tooltip, when the mouse hovers over the systray icon.
@@ -51,23 +51,23 @@ namespace Spacebridge
 
         public void AddConnectionToContextMenu(int local_port, string menu_item)
         {
-            MenuItem connectionItem = new MenuItem
+            ToolStripMenuItem connectionItem = new ToolStripMenuItem
             {
                 Text = menu_item,
                 Tag = local_port
             };
             connectionItem.Click += new EventHandler(this.Disconnect_Click);
 
-            this.connections.MenuItems.Add(connectionItem);
+            this.connections.DropDownItems.Add(connectionItem);
         }
 
         public void RemoveConnectionToContextMenu(string menu_item)
         {
-            foreach(MenuItem connection in this.connections.MenuItems)
+            foreach(ToolStripMenuItem connection in this.connections.DropDownItems)
             {
                 if(connection.Text == menu_item)
                 {
-                    this.connections.MenuItems.Remove(connection);
+                    this.connections.DropDownItems.Remove(connection);
                     break;
                 }
             }
@@ -75,15 +75,15 @@ namespace Spacebridge
 
         private void Disconnect_Click(object sender, EventArgs e)
         {
-            foreach(MenuItem connection in this.connections.MenuItems)
+            foreach(ToolStripMenuItem connection in this.connections.DropDownItems)
             {
-                if(connection.Tag == ((MenuItem)sender).Tag)
+                if(connection.Tag == ((ContextMenuStrip)sender).Tag)
                 {
-                    this.connections.MenuItems.Remove(connection);
+                    this.connections.DropDownItems.Remove(connection);
                     break; 
                 }
             }
-            SSH.StopForwarding((int)((MenuItem)sender).Tag);
+            SSH.StopForwarding((int)((ContextMenuStrip)sender).Tag);
         }
 
         void TrayIcon_Click(object sender, EventArgs e)

@@ -81,14 +81,12 @@ namespace Spacebridge
                 };
                 client.HostKeyReceived += (sender, e) =>
                 {
-                    System.Diagnostics.Debug.WriteLine("Got finerprint");
                     if (hologram_fingerprint.Length == e.FingerPrint.Length)
                     {
                         for (var i = 0; i < hologram_fingerprint.Length; i++)
                         {
                             if (hologram_fingerprint[i] != e.FingerPrint[i])
                             {
-                                System.Diagnostics.Debug.WriteLine("Finerprint Denied");
                                 e.CanTrust = false;
                                 break;
                             }
@@ -96,7 +94,6 @@ namespace Spacebridge
                     }
                     else
                     {
-                        System.Diagnostics.Debug.WriteLine("Finerprint Denied");
                         e.CanTrust = false;
                     }
                 };
