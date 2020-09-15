@@ -34,7 +34,7 @@ namespace Spacebridge
 
             // The Icon property sets the icon that will appear
             // in the systray for this application.
-            TrayIcon.Icon = Spacebridge.Resources.tray_icon;
+            TrayIcon.Icon = Spacebridge.Resources.spacebridge;
 
             // The ContextMenu property sets the menu that will
             // appear when the systray icon is right clicked.

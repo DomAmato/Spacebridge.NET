@@ -63,9 +63,9 @@ namespace Spacebridge {
         /// <summary>
         ///   Looks up a localized resource of type System.Drawing.Icon similar to (Icon).
         /// </summary>
-        internal static System.Drawing.Icon app_icon {
+        internal static System.Drawing.Icon spacebridge {
             get {
-                object obj = ResourceManager.GetObject("app_icon", resourceCulture);
+                object obj = ResourceManager.GetObject("spacebridge", resourceCulture);
                 return ((System.Drawing.Icon)(obj));
             }
         }
@@ -73,9 +73,9 @@ namespace Spacebridge {
         /// <summary>
         ///   Looks up a localized resource of type System.Drawing.Icon similar to (Icon).
         /// </summary>
-        internal static System.Drawing.Icon tray_icon {
+        internal static System.Drawing.Icon spacebridge_stroke {
             get {
-                object obj = ResourceManager.GetObject("tray_icon", resourceCulture);
+                object obj = ResourceManager.GetObject("spacebridge_stroke", resourceCulture);
                 return ((System.Drawing.Icon)(obj));
             }
         }
