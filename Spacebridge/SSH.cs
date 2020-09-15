@@ -133,11 +133,14 @@ namespace Spacebridge
 
         public static void StopForwarding(int local_port)
         {
+            System.Diagnostics.Debug.WriteLine("Attempting to stop forwarding on port " + local_port);
+
             foreach (ForwardedPortLocal port in client.ForwardedPorts)
             {
                 if (port.BoundPort == local_port)
                 {
-                    port.Stop();
+                    client.RemoveForwardedPort(port);
+                    break;
                 }
             }
         }
